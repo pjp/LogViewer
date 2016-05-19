@@ -36,7 +36,7 @@ public class UtilsTest
 
     String timestampStartSentinal       = "[";
     String timestampEndSentinal         = "]";
-    SimpleDateFormat SDF                = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+    String SDF                          = "yyyy-MM-dd HH:mm:ss,SSS";
     String TIMESTAMP1                   = timestampStartSentinal + "2016-05-16 03:34:56,789" + timestampEndSentinal;
     String TIMESTAMP2                   = timestampStartSentinal + "2016-05-16 06:34:56,789" + timestampEndSentinal;
     String TIMESTAMP3                   = timestampStartSentinal + "2016-05-16 09:34:56,789" + timestampEndSentinal;

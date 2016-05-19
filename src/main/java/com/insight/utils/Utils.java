@@ -86,7 +86,7 @@ public class Utils {
      * @param lines The lines of data that make up a log entry
      * @param timestampStartSentinal The character string denoting the start of a log entry.
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
-     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @return
      * @throws ParseException
      */
@@ -95,9 +95,9 @@ public class Utils {
             final List<String> lines,
             final String timestampStartSentinal,
             final String timestampEndSentinal,
-            final SimpleDateFormat sdf) throws ParseException {
+            final String timestampDateFormat) throws ParseException {
 
-        return createLogEntries(source, lines,timestampStartSentinal, timestampEndSentinal, sdf, null, null);
+        return createLogEntries(source, lines,timestampStartSentinal, timestampEndSentinal, timestampDateFormat, null, null);
     }
 
     /**
@@ -107,7 +107,7 @@ public class Utils {
      * @param lines The lines of data that make up a log entry
      * @param timestampStartSentinal The character string denoting the start of a log entry.
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
-     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
      *                null or empty implies no filtering
      * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
@@ -120,12 +120,13 @@ public class Utils {
             final List<String> lines,
             final String timestampStartSentinal,
             final String timestampEndSentinal,
-            final SimpleDateFormat sdf,
+            final String timestampDateFormat,
             final String startAt,
             final String endAt) throws ParseException {
         List<LogEntry> logEntries   = new ArrayList<LogEntry>();
         StringBuilder currentEntry  = new StringBuilder();
         boolean atStart             = true;
+        SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
 
         for (String line : lines) {
             if(atStart) {
@@ -192,7 +193,7 @@ public class Utils {
      * @param fileName The file containing log entries.
      * @param timestampStartSentinal The character string denoting the start of a log entry.
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
-     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @return
      * @throws FileNotFoundException
      * @throws ParseException
@@ -201,9 +202,9 @@ public class Utils {
             final String fileName,
             final String timestampStartSentinal,
             final String timestampEndSentinal,
-            SimpleDateFormat sdf) throws FileNotFoundException, ParseException {
+            final String timestampDateFormat) throws FileNotFoundException, ParseException {
 
-        return createLogEntries(fileName, timestampStartSentinal, timestampEndSentinal, sdf, null, null);
+        return createLogEntries(fileName, timestampStartSentinal, timestampEndSentinal, timestampDateFormat, null, null);
     }
 
     /**
@@ -212,7 +213,7 @@ public class Utils {
      * @param fileName The file containing log entries.
      * @param timestampStartSentinal The character string denoting the start of a log entry.
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
-     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
      *                null or empty implies no filtering
      * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
@@ -225,7 +226,7 @@ public class Utils {
             final String fileName,
             final String timestampStartSentinal,
             final String timestampEndSentinal,
-            SimpleDateFormat sdf,
+            final String timestampDateFormat,
             final String startAt,
             final String endAt) throws FileNotFoundException, ParseException {
         File file = new File(fileName);
@@ -242,7 +243,7 @@ public class Utils {
                             lines,
                             timestampStartSentinal,
                             timestampEndSentinal,
-                            sdf,
+                            timestampDateFormat,
                             startAt,
                             endAt);
         }
@@ -525,7 +526,6 @@ public class Utils {
 
         List<List<LogEntry>> logs   = new ArrayList<>();
         List<String> sources        = new ArrayList<>();
-        SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
 
         for(String logFile : logFiles) {
             List<LogEntry> logEntries =
@@ -533,7 +533,7 @@ public class Utils {
                             logFile,
                             timestampStartSentinal,
                             timestampEndSentinal,
-                            sdf,
+                            timestampDateFormat,
                             startAt,
                             endAt);
 
