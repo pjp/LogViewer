@@ -7,6 +7,12 @@ import java.util.*;
 
 /**
  * Created by ppearce on 2016-05-17.
+ *
+ * When comparing multiple log files from servers, it can be very useful to see the timeline of events from the logs.
+ *
+ * This utility take multiple log files (up to 10), then time ascending sorts them into a single list so that
+ * log events on the different servers can be visualized in a single place.
+ *
  */
 public class Utils {
     public static final String LINE_SEP = System.lineSeparator();
