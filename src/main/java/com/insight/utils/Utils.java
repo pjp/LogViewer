@@ -262,7 +262,8 @@ public class Utils {
             System.err.println("");
             System.err.println("Usage: [@property_file] logfile ...");
             System.err.println("");
-            System.err.println("Note:");
+            System.err.println("Notes:");
+            System.err.println("The merged time ascending list is written to stdout.");
             System.err.println("The property file can contain these keys, default values are used if");
             System.err.println("the property is not specified, or no property file specified.");
             System.err.println("");
