@@ -420,7 +420,7 @@ public class Utils {
         }
         System.out.println();
 
-        if(args.length < 2) {
+        if(args.length < 1) {
             usage(  propertyFileName,
                     timestampStartSentinalPropName,
                     timestampStartSentinal,
