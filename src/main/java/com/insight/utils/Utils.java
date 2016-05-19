@@ -248,9 +248,9 @@ public class Utils {
         String timestampEndSentinal                     = "]";
         String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
         SimpleDateFormat sdf                            = null;
-        String propertyFileName                         = null;
         String startAt                                  = null;
         String endAt                                    = null;
+        String propertyFileName                         = "logviewer.properties";
         final String timestampStartSentinalPropName     = "logentry.timestamp.start.sentinal";
         final String timestampEndSentinalPropName       = "logentry.timestamp.end.sentinal";
         final String timestampDateFormatPropName        = "logentry.timestamp.date.format";
@@ -260,10 +260,15 @@ public class Utils {
         if(args.length < 2) {
             System.err.println("View multiple log files in a single time ascending order list.");
             System.err.println("");
-            System.err.println("Usage: [@property_file] logfile ...");
+            System.err.println("Usage: [@property_file] [@-] logfile ...");
             System.err.println("");
             System.err.println("Notes:");
             System.err.println("The merged time ascending list is written to stdout.");
+            System.err.println("");
+            System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
+            System.err.println("directory will be read if it exists. To prevent this, either explicitly");
+            System.err.println("specify an alternative file '@filename', else specify '@-' to prevent using a default.");
+            System.err.println("");
             System.err.println("The property file can contain these keys, default values are used if");
             System.err.println("the property is not specified, or no property file specified.");
             System.err.println("");
@@ -279,11 +284,15 @@ public class Utils {
         List<String>logFiles = new ArrayList<>();
 
         for(String filename : args) {
-           if(filename.startsWith("@")) {
-               propertyFileName = filename.substring(1);
-           } else {
-               logFiles.add(filename);
-           }
+            if (filename.startsWith("@-")) {
+                propertyFileName = null;
+            } else {
+                if (filename.startsWith("@")) {
+                    propertyFileName = filename.substring(1);
+                } else {
+                    logFiles.add(filename);
+                }
+            }
         }
 
         if(null != propertyFileName) {
