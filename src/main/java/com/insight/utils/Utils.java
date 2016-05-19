@@ -1,9 +1,6 @@
 package com.insight.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -130,6 +127,12 @@ public class Utils {
         return logEntries;
     }
 
+    public static String getFileNameFromFullPath(final String path) {
+        File file = new File(path);
+
+        return file.getName();
+    }
+
     public static List<LogEntry> createLogEntries(
             final String fileName,
             final String timestampStartSentinal,
@@ -139,11 +142,6 @@ public class Utils {
         return createLogEntries(fileName, timestampStartSentinal, timestampEndSentinal, sdf, null, null);
     }
 
-    public static String getFileNameFromFullPath(final String path) {
-        File file = new File(path);
-
-        return file.getName();
-    }
 
     public static List<LogEntry> createLogEntries(
             final String fileName,
@@ -243,5 +241,74 @@ public class Utils {
                 }
             }
         }
+    }
+
+    public static void main(final String[] args) throws IOException, ParseException {
+        String timestampStartSentinal                   = "[";
+        String timestampEndSentinal                     = "]";
+        String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
+        SimpleDateFormat sdf                            = null;
+        String propertyFileName                         = null;
+        String startAt                                  = null;
+        String endAt                                    = null;
+        final String timestampStartSentinalPropName     = "logentry.timestamp.start.sentinal";
+        final String timestampEndSentinalPropName       = "logentry.timestamp.end.sentinal";
+        final String timestampDateFormatPropName        = "logentry.timestamp.date.format";
+        final String startAtPropName                    = "logentry.filter.start.date";
+        final String endAtPropName                      = "logentry.filter.end.date";
+
+        if(args.length < 2) {
+            System.err.println("View multiple log files in a single time ascending order list.");
+            System.err.println("");
+            System.err.println("Usage: [@property_file] logfile ...");
+            System.err.println("");
+            System.err.println("Note:");
+            System.err.println("The property file can contain these keys, default values are used if");
+            System.err.println("the property is not specified, or no property file specified.");
+            System.err.println("");
+            System.err.println(String.format("Key: [%-35s], default is '%s'", timestampStartSentinalPropName, timestampStartSentinal));
+            System.err.println(String.format("Key: [%-35s], default is '%s'", timestampEndSentinalPropName, timestampEndSentinal));
+            System.err.println(String.format("Key: [%-35s], default is '%s'", timestampDateFormatPropName, timestampDateFormat));
+            System.err.println(String.format("Key: [%-35s], default is '%s'", startAtPropName, "empty or not set -> Earliest"));
+            System.err.println(String.format("Key: [%-35s], default is '%s'", endAtPropName, "empty or not set -> Latest"));
+
+            System.exit(1);
+        }
+
+        List<String>logFiles = new ArrayList<>();
+
+        for(String filename : args) {
+           if(filename.startsWith("@")) {
+               propertyFileName = filename.substring(1);
+           } else {
+               logFiles.add(filename);
+           }
+        }
+
+        if(null != propertyFileName) {
+            Properties props = new Properties();
+            props.load(new FileInputStream(propertyFileName)) ;
+
+            timestampStartSentinal  = props.getProperty(timestampStartSentinalPropName, timestampStartSentinal);
+            timestampEndSentinal    = props.getProperty(timestampEndSentinalPropName, timestampEndSentinal);
+            timestampDateFormat     = props.getProperty(timestampDateFormatPropName, timestampDateFormat);
+            startAt                 = props.getProperty(startAtPropName, startAt);
+            endAt                   = props.getProperty(endAtPropName, endAt);
+        }
+
+        List<List<LogEntry>> logs   = new ArrayList<>();
+        List<String> sources = new ArrayList<>();
+        sdf = new SimpleDateFormat(timestampDateFormat);
+
+        for(String logFile : logFiles) {
+            List<LogEntry> logEntries =
+                    createLogEntries(logFile,timestampStartSentinal,timestampEndSentinal, sdf, startAt, endAt);
+            logs.add(logEntries);
+            sources.add(getFileNameFromFullPath(logFile));
+        }
+
+        List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
+
+        Utils.displayList(timeSortedLogEntries, sources, 10, "");
     }
 }
