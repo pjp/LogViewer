@@ -408,6 +408,17 @@ public class Utils {
         final String timestampDateFormatPropName        = "logentry.timestamp.date.format";
         final String startAtPropName                    = "logentry.filter.start.date";
         final String endAtPropName                      = "logentry.filter.end.date";
+        final String NAME                               = "LogViewer";
+        final String VERSION                            = "1.0";
+
+        System.out.println(String.format("# %s - v%s", NAME, VERSION));
+
+        System.out.print("# Cmd line: ");
+
+        for(String arg : args) {
+            System.out.print(arg + " ");
+        }
+        System.out.println();
 
         if(args.length < 2) {
             usage(  propertyFileName,
@@ -483,6 +494,7 @@ public class Utils {
                 timestampDateFormat     = props.getProperty(timestampDateFormatPropName, timestampDateFormat);
                 startAt                 = props.getProperty(startAtPropName, startAt);
                 endAt                   = props.getProperty(endAtPropName, endAt);
+                System.out.println("# Loaded property file [" + propertyFileName + "]");
             } catch(IOException e) {
                 if(! usingDefaultPropertyFile) {
                     throw e;
