@@ -138,7 +138,7 @@ public class UtilsTest
 
         PrintStream out = new PrintStream(new FileOutputStream(new File("result.log")));
 
-        Utils.emitList(timeSortedLogEntries, sources, 10, "Filtered, start at " + startAt + ", end at " + endAt, out);
+        Utils.emitList(timeSortedLogEntries, sources, "Filtered, start at " + startAt + ", end at " + endAt, out);
     }
 
     public void testCreateTwoLogEntriesListWithTwoLinesEach() throws ParseException {
@@ -175,7 +175,7 @@ public class UtilsTest
         sources.add(SOURCE);
         sources.add(SOURCE2);
 
-        Utils.displayList(timeSortedLogEntries, sources, 10, "");
+        Utils.displayList(timeSortedLogEntries, sources, "");
     }
 
     public void testFilteredLists() throws ParseException {
@@ -317,7 +317,7 @@ public class UtilsTest
         sources.add(SOURCE2);
         sources.add(SOURCE3);
 
-        Utils.displayList(timeSortedLogEntries, sources, 10, "");
+        Utils.displayList(timeSortedLogEntries, sources, "");
     }
 
     public void testCreateTwoLogEntriesListWithFirstHavingTwoLines() throws ParseException {

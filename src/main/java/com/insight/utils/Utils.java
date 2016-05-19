@@ -11,6 +11,21 @@ import java.util.*;
 public class Utils {
     public static final String LINE_SEP = System.lineSeparator();
 
+    /**
+     * Build a representation of a log entry.
+     *
+     * @param source The source of the log data
+     * @param data The log entry's data (may contain multiple lines)
+     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
+     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
+     *                null or empty implies no filtering
+     * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
+     *              null or empty implies no filtering.
+     * @return
+     * @throws ParseException
+     */
     public static LogEntry createLogEntry(
             final String source,
             final String data,
@@ -58,6 +73,17 @@ public class Utils {
         return logEntry;
     }
 
+    /**
+     * Build a representation of a set of log entries from a single source.
+     *
+     * @param source The source of the log data
+     * @param lines The lines of data that make up a log entry
+     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
+     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @return
+     * @throws ParseException
+     */
     public static List<LogEntry> createLogEntries(
             final String source,
             final List<String> lines,
@@ -68,6 +94,21 @@ public class Utils {
         return createLogEntries(source, lines,timestampStartSentinal, timestampEndSentinal, sdf, null, null);
     }
 
+    /**
+     * Build a representation of a set of log entries from a single source.
+     *
+     * @param source The source of the log data
+     * @param lines The lines of data that make up a log entry
+     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
+     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
+     *                null or empty implies no filtering
+     * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
+     *              null or empty implies no filtering.
+     * @return
+     * @throws ParseException
+     */
     public static List<LogEntry> createLogEntries(
             final String source,
             final List<String> lines,
@@ -127,12 +168,29 @@ public class Utils {
         return logEntries;
     }
 
+    /**
+     * Extract the filename from a path.
+     *
+     * @param path The full path to a file.
+     * @return
+     */
     public static String getFileNameFromFullPath(final String path) {
         File file = new File(path);
 
         return file.getName();
     }
 
+    /**
+     * Build a representation of a set of log entries from a single file.
+     *
+     * @param fileName The file containing log entries.
+     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
+     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @return
+     * @throws FileNotFoundException
+     * @throws ParseException
+     */
     public static List<LogEntry> createLogEntries(
             final String fileName,
             final String timestampStartSentinal,
@@ -142,7 +200,21 @@ public class Utils {
         return createLogEntries(fileName, timestampStartSentinal, timestampEndSentinal, sdf, null, null);
     }
 
-
+    /**
+     * Build a representation of a set of log entries from a single file.
+     *
+     * @param fileName The file containing log entries.
+     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
+     * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
+     *                null or empty implies no filtering
+     * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
+     *              null or empty implies no filtering.
+     * @return
+     * @throws FileNotFoundException
+     * @throws ParseException
+     */
     public static List<LogEntry> createLogEntries(
             final String fileName,
             final String timestampStartSentinal,
@@ -172,6 +244,12 @@ public class Utils {
         return logEntries;
     }
 
+    /**
+     * Time sort the list of lists.
+     *
+     * @param logs A list of log entry lists.
+     * @return A list time sorted
+     */
     public static List<LogEntry> timeSortLists(List<List<LogEntry>> logs) {
         List<LogEntry> timeSortedLogEntries   = new ArrayList<>();
 
@@ -184,21 +262,34 @@ public class Utils {
         return timeSortedLogEntries;
     }
 
+    /**
+     * Display a LogEntry list on stdout.
+     *
+     * @param logEntries A list of time sorted log entries.
+     * @param sources A list of the sources that made up the time sorted list.
+     * @param label Text to display at the top of the outpit
+     */
     public static void displayList(
             final List<LogEntry> logEntries,
             final List<String> sources,
-            final int offset,
             final String label) {
 
         PrintStream out = System.out;
 
-        emitList(logEntries, sources, offset, label, out);
+        emitList(logEntries, sources, label, out);
     }
 
+    /**
+     * Emit a timesorted log entry List on the specified output.
+     *
+     * @param logEntries A list of time sorted log entries.
+     * @param sources A list of the sources that made up the time sorted list.
+     * @param label Text to display at the top of the outpit
+     * @param out The stream to write to.
+     */
     public static void emitList(
             final List<LogEntry> logEntries,
             final List<String> sources,
-            final int offset,
             final String label,
             PrintStream out) {
         String source   = null;
@@ -243,6 +334,13 @@ public class Utils {
         }
     }
 
+    /**
+     * For usage from the command line
+     *
+     * @param args
+     * @throws IOException
+     * @throws ParseException
+     */
     public static void main(final String[] args) throws IOException, ParseException {
         String timestampStartSentinal                   = "[";
         String timestampEndSentinal                     = "]";
@@ -325,6 +423,6 @@ public class Utils {
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
 
-        Utils.displayList(timeSortedLogEntries, sources, 10, "");
+        Utils.displayList(timeSortedLogEntries, sources, "");
     }
 }
