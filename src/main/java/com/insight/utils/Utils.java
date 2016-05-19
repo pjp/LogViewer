@@ -22,7 +22,7 @@ public class Utils {
      *
      * @param source The source of the log data
      * @param data The log entry's data (may contain multiple lines)
-     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param sdf A Simple date formatter for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
@@ -92,7 +92,7 @@ public class Utils {
      *
      * @param source The source of the log data
      * @param lines The lines of data that make up a log entry
-     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @return
@@ -111,7 +111,7 @@ public class Utils {
     /**
      *
      * @param line
-     * @param timestampStartSentinal
+     * @param timestampStartSentinal (may be null or empty)
      * @param timestampEndSentinal
      * @param timestampDateFormat
      * @return
@@ -150,7 +150,7 @@ public class Utils {
      *
      * @param source The source of the log data
      * @param lines The lines of data that make up a log entry
-     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
@@ -236,7 +236,7 @@ public class Utils {
      * Build a representation of a set of log entries from a single file.
      *
      * @param fileName The file containing log entries.
-     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @return
@@ -256,7 +256,7 @@ public class Utils {
      * Build a representation of a set of log entries from a single file.
      *
      * @param fileName The file containing log entries.
-     * @param timestampStartSentinal The character string denoting the start of a log entry.
+     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
      * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
