@@ -247,7 +247,6 @@ public class Utils {
         String timestampStartSentinal                   = "[";
         String timestampEndSentinal                     = "]";
         String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
-        SimpleDateFormat sdf                            = null;
         String startAt                                  = null;
         String endAt                                    = null;
         String propertyFileName                         = "logviewer.properties";
@@ -307,12 +306,19 @@ public class Utils {
         }
 
         List<List<LogEntry>> logs   = new ArrayList<>();
-        List<String> sources = new ArrayList<>();
-        sdf = new SimpleDateFormat(timestampDateFormat);
+        List<String> sources        = new ArrayList<>();
+        SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
 
         for(String logFile : logFiles) {
             List<LogEntry> logEntries =
-                    createLogEntries(logFile,timestampStartSentinal,timestampEndSentinal, sdf, startAt, endAt);
+                    createLogEntries(
+                            logFile,
+                            timestampStartSentinal,
+                            timestampEndSentinal,
+                            sdf,
+                            startAt,
+                            endAt);
+
             logs.add(logEntries);
             sources.add(getFileNameFromFullPath(logFile));
         }
