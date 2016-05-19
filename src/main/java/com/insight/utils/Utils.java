@@ -464,7 +464,7 @@ public class Utils {
                     endAtPropName);
         }
 
-        // Pain, need to do some dnacing for the property file name.
+        // Pain, need to do some dancing around for the property file name.
         if(null != cmdLinePropertyFileName) {
             if(cmdLinePropertyFileName.startsWith("@-")) {
                 propertyFileName = null;
