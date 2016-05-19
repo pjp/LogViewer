@@ -347,7 +347,7 @@ public class Utils {
      * @throws IOException
      * @throws ParseException
      */
-    public static void main(final String[] args) throws IOException, ParseException {
+    public static void main(final String[] args) throws IOException, ParseException, FileNotFoundException {
         String timestampStartSentinal                   = "[";
         String timestampEndSentinal                     = "]";
         String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
@@ -363,10 +363,20 @@ public class Utils {
         if(args.length < 2) {
             System.err.println("View multiple log files in a single time ascending order list.");
             System.err.println("");
-            System.err.println("Usage: [@property_file] [@-] logfile logfile ...");
+            System.err.println("Usage: [@FILE] [@-] [#s#TS] [#e#TS] logfile logfile ...");
+            System.err.println("");
+            System.err.println("   @-      Do not load any properties file.");
+            System.err.println("   @FILE   A properties file to load configuration values from.");
+            System.err.println("   #s#TS   Set the starting TimeStamp (TS) for filtering log entries.");
+            System.err.println("   #e#TS   Set the ending TimeStamp (TS) for filtering log entries.");
+            System.err.println("");
             System.err.println("");
             System.err.println("Notes:");
+            System.err.println("");
             System.err.println("The merged time ascending list is written to stdout.");
+            System.err.println("");
+            System.err.println("Command line start/end TimeStamps override everything else, and HAVE to be in");
+            System.err.println("the same format as the value read from logentry.timestamp.date.format");
             System.err.println("");
             System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
             System.err.println("directory will be read if it exists. To prevent this, either explicitly");
@@ -384,29 +394,51 @@ public class Utils {
             System.exit(1);
         }
 
-        List<String>logFiles = new ArrayList<>();
+        List<String>logFiles                = new ArrayList<>();
+        boolean usingDefaultPropertyFile    = true;
+        String cmdLineStartAt               = null;
+        String cmdLineEndAt                 = null;
 
         for(String filename : args) {
             if (filename.startsWith("@-")) {
                 propertyFileName = null;
+                usingDefaultPropertyFile = false;
+            } else if (filename.startsWith("@")) {
+                propertyFileName = filename.substring(1);
+                usingDefaultPropertyFile = false;
+            } else if (filename.startsWith("#s#")) {
+                cmdLineStartAt = filename.substring(3);
+            } else if (filename.startsWith("#e#")) {
+                cmdLineEndAt    = filename.substring(3);
             } else {
-                if (filename.startsWith("@")) {
-                    propertyFileName = filename.substring(1);
-                } else {
-                    logFiles.add(filename);
-                }
+                logFiles.add(filename);
             }
         }
 
         if(null != propertyFileName) {
-            Properties props = new Properties();
-            props.load(new FileInputStream(propertyFileName)) ;
+            try {
+                Properties props = new Properties();
+                props.load(new FileInputStream(propertyFileName));
 
-            timestampStartSentinal  = props.getProperty(timestampStartSentinalPropName, timestampStartSentinal);
-            timestampEndSentinal    = props.getProperty(timestampEndSentinalPropName, timestampEndSentinal);
-            timestampDateFormat     = props.getProperty(timestampDateFormatPropName, timestampDateFormat);
-            startAt                 = props.getProperty(startAtPropName, startAt);
-            endAt                   = props.getProperty(endAtPropName, endAt);
+                timestampStartSentinal  = props.getProperty(timestampStartSentinalPropName, timestampStartSentinal);
+                timestampEndSentinal    = props.getProperty(timestampEndSentinalPropName, timestampEndSentinal);
+                timestampDateFormat     = props.getProperty(timestampDateFormatPropName, timestampDateFormat);
+                startAt                 = props.getProperty(startAtPropName, startAt);
+                endAt                   = props.getProperty(endAtPropName, endAt);
+            } catch(IOException e) {
+                if(! usingDefaultPropertyFile) {
+                    throw e;
+                }
+            }
+        }
+
+        // Override any value from those on the command line
+        if(null != cmdLineStartAt) {
+            startAt = cmdLineStartAt;
+        }
+
+        if(null != cmdLineEndAt) {
+            endAt = cmdLineEndAt;
         }
 
         List<List<LogEntry>> logs   = new ArrayList<>();
