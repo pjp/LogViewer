@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,15 +33,21 @@ public class UtilsTest
         return new TestSuite( UtilsTest.class );
     }
 
-    String timestampStartSentinal       = "[";
-    String timestampEndSentinal         = "]";
-    String SDF                          = "yyyy-MM-dd HH:mm:ss,SSS";
-    String TIMESTAMP1                   = timestampStartSentinal + "2016-05-16 03:34:56,789" + timestampEndSentinal;
-    String TIMESTAMP2                   = timestampStartSentinal + "2016-05-16 06:34:56,789" + timestampEndSentinal;
-    String TIMESTAMP3                   = timestampStartSentinal + "2016-05-16 09:34:56,789" + timestampEndSentinal;
-    String TIMESTAMP4                   = timestampStartSentinal + "2016-05-16 12:34:56,789" + timestampEndSentinal;
-    String TIMESTAMP5                   = timestampStartSentinal + "2016-05-16 15:34:56,789" + timestampEndSentinal;
-    String TIMESTAMP6                   = timestampStartSentinal + "2016-05-16 18:34:56,789" + timestampEndSentinal;
+    String TS1_START_SENTINAL           = "[";
+    String TS1_END_SENTINAL             = "]";
+    String TS1_FORMAT                   = "yyyy-MM-dd HH:mm:ss,SSS";
+    String TS1                          = "2016-05-16 03:34:56,789";
+    String TS2                          = "2016-05-16 06:34:56,789";
+    String TS3                          = "2016-05-16 09:34:56,789";
+    String TS4                          = "2016-05-16 12:34:56,789";
+    String TS5                          = "2016-05-16 15:34:56,789";
+    String TS6                          = "2016-05-16 18:34:56,789";
+    String TS1_WITH_SENTINALS           = TS1_START_SENTINAL + TS1 + TS1_END_SENTINAL;
+    String TS2_WITH_SENTINALS           = TS1_START_SENTINAL + TS2 + TS1_END_SENTINAL;
+    String TS3_WITH_SENTINALS           = TS1_START_SENTINAL + TS3 + TS1_END_SENTINAL;
+    String TS4_WITH_SENTINALS           = TS1_START_SENTINAL + TS4 + TS1_END_SENTINAL;
+    String TS5_WITH_SENTINALS           = TS1_START_SENTINAL + TS5 + TS1_END_SENTINAL;
+    String TS6_WITH_SENTINALS           = TS1_START_SENTINAL + TS6 + TS1_END_SENTINAL;
     String SOURCE                       = "inline1";
     String SOURCE2                      = "inline2";
     String SOURCE3                      = "inline3";
@@ -50,7 +55,7 @@ public class UtilsTest
     public void testCreateEmptyLogEntriesList() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -58,19 +63,29 @@ public class UtilsTest
 
     public void testCreateSingleLogEntriesListWithOneLine() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
+        List<LogEntry> logEntries   = null;
 
-        lines.add(TIMESTAMP1 + " WooHoo");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        lines.add(TS1_WITH_SENTINALS + " WooHoo");
+        logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(1, logEntries.size());
+
+        //////////////////////////////////////
+        lines.clear();
+        lines.add(TS1 + TS1_END_SENTINAL + " WooHoo");
+        logEntries = Utils.createLogEntries(SOURCE, lines, null, " ", TS1_FORMAT);
+
+        assertNotNull(logEntries);
+        assertEquals(1, logEntries.size());
+
     }
 
     public void testCreateSingleLogEntriesListWithOneNonStartingLine() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
         lines.add(" WooHoo");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -81,7 +96,7 @@ public class UtilsTest
 
         lines.add(" WooHoo1");
         lines.add(" WooHoo2");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -92,9 +107,9 @@ public class UtilsTest
 
         lines.add(" WooHoo1");
         lines.add(" WooHoo2");
-        lines.add(TIMESTAMP1 + " WooHoo");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(1, logEntries.size());
@@ -103,9 +118,9 @@ public class UtilsTest
     public void testCreateTwoLogEntriesListWithOneLineEach() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        lines.add(TIMESTAMP1 + " WooHoo 1");
-        lines.add(TIMESTAMP1 + " WooHoo 2");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 1");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 2");
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -120,13 +135,13 @@ public class UtilsTest
         List<LogEntry> logEntries   = null;
         List<List<LogEntry>> logs   = new ArrayList<>();
 
-        logEntries = Utils.createLogEntries(file1, timestampStartSentinal, timestampEndSentinal, SDF, startAt, endAt);
+        logEntries = Utils.createLogEntries(file1, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT, startAt, endAt);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file2, timestampStartSentinal, timestampEndSentinal, SDF, startAt, endAt);
+        logEntries = Utils.createLogEntries(file2, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT, startAt, endAt);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file3, timestampStartSentinal, timestampEndSentinal, SDF, startAt, endAt);
+        logEntries = Utils.createLogEntries(file3, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT, startAt, endAt);
         logs.add(logEntries);
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
@@ -144,15 +159,15 @@ public class UtilsTest
     public void testCreateTwoLogEntriesListWithTwoLinesEach() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        lines.add(TIMESTAMP1 + " WooHoo 1a");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 1a");
         lines.add("WooHoo 1b");
 
-        lines.add(TIMESTAMP2 + " WooHoo 2a");
+        lines.add(TS2_WITH_SENTINALS + " WooHoo 2a");
         lines.add("WooHoo 2b");
 
         List<List<LogEntry>> logs = new ArrayList<>();
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
         logs.add(logEntries);
 
         assertNotNull(logEntries);
@@ -184,21 +199,21 @@ public class UtilsTest
         String endAt                = null;
         List<LogEntry> logEntries   = null;
 
-        lines.add(TIMESTAMP2 + " WooHoo 2");
-        lines.add(TIMESTAMP3 + " WooHoo 3");
-        lines.add(TIMESTAMP4 + " WooHoo 4");
+        lines.add(TS2_WITH_SENTINALS + " WooHoo 2");
+        lines.add(TS3_WITH_SENTINALS + " WooHoo 3");
+        lines.add(TS4_WITH_SENTINALS + " WooHoo 4");
 
         ///////////////////////////////////
-        startAt              = TIMESTAMP1.substring(1, TIMESTAMP1.length());
-        endAt                = TIMESTAMP5.substring(1, TIMESTAMP5.length());
+        startAt              = TS1_WITH_SENTINALS.substring(1, TS1_WITH_SENTINALS.length());
+        endAt                = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        timestampStartSentinal,
-                        timestampEndSentinal,
-                        SDF,
+                        TS1_START_SENTINAL,
+                        TS1_END_SENTINAL,
+                        TS1_FORMAT,
                         startAt,
                         endAt);
 
@@ -208,16 +223,16 @@ public class UtilsTest
         assertEquals(" WooHoo 4" + Utils.LINE_SEP, logEntries.get(2).getPayload());
 
         ///////////////////////////////////
-        startAt              = TIMESTAMP3.substring(1, TIMESTAMP3.length());
-        endAt                = TIMESTAMP5.substring(1, TIMESTAMP5.length());
+        startAt              = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
+        endAt                = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        timestampStartSentinal,
-                        timestampEndSentinal,
-                        SDF,
+                        TS1_START_SENTINAL,
+                        TS1_END_SENTINAL,
+                        TS1_FORMAT,
                         startAt,
                         endAt);
 
@@ -226,16 +241,16 @@ public class UtilsTest
         assertEquals(" WooHoo 4" + Utils.LINE_SEP, logEntries.get(1).getPayload());
 
         ///////////////////////////////////
-        startAt              = TIMESTAMP3.substring(1, TIMESTAMP3.length());
-        endAt                = TIMESTAMP3.substring(1, TIMESTAMP3.length());
+        startAt              = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
+        endAt                = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        timestampStartSentinal,
-                        timestampEndSentinal,
-                        SDF,
+                        TS1_START_SENTINAL,
+                        TS1_END_SENTINAL,
+                        TS1_FORMAT,
                         startAt,
                         endAt);
 
@@ -243,32 +258,32 @@ public class UtilsTest
         assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
 
         ///////////////////////////////////
-        startAt              = TIMESTAMP1.substring(1, TIMESTAMP1.length());
-        endAt                = TIMESTAMP1.substring(1, TIMESTAMP1.length());
+        startAt              = TS1_WITH_SENTINALS.substring(1, TS1_WITH_SENTINALS.length());
+        endAt                = TS1_WITH_SENTINALS.substring(1, TS1_WITH_SENTINALS.length());
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        timestampStartSentinal,
-                        timestampEndSentinal,
-                        SDF,
+                        TS1_START_SENTINAL,
+                        TS1_END_SENTINAL,
+                        TS1_FORMAT,
                         startAt,
                         endAt);
 
         assertEquals(0, logEntries.size());
 
         ///////////////////////////////////
-        startAt              = TIMESTAMP5.substring(1, TIMESTAMP5.length());
-        endAt                = TIMESTAMP5.substring(1, TIMESTAMP5.length());
+        startAt              = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
+        endAt                = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        timestampStartSentinal,
-                        timestampEndSentinal,
-                        SDF,
+                        TS1_START_SENTINAL,
+                        TS1_END_SENTINAL,
+                        TS1_FORMAT,
                         startAt,
                         endAt);
 
@@ -281,28 +296,28 @@ public class UtilsTest
         List<String> linesSecond    = new ArrayList<String>() ;
         List<String> linesThird     = new ArrayList<String>() ;
 
-        linesFirst.add(TIMESTAMP1 + " WooHoo 1a");
+        linesFirst.add(TS1_WITH_SENTINALS + " WooHoo 1a");
         linesFirst.add("WooHoo 1a1");
-        linesFirst.add(TIMESTAMP5 + " WooHoo 1b");
+        linesFirst.add(TS5_WITH_SENTINALS + " WooHoo 1b");
 
-        linesSecond.add(TIMESTAMP2 + " WooHoo 2a");
-        linesSecond.add(TIMESTAMP3 + " WooHoo 2b");
+        linesSecond.add(TS2_WITH_SENTINALS + " WooHoo 2a");
+        linesSecond.add(TS3_WITH_SENTINALS + " WooHoo 2b");
         linesSecond.add("WooHoo 2b1");
         linesSecond.add("WooHoo 2b2");
 
-        linesThird.add(TIMESTAMP4 + " WooHoo 3a");
+        linesThird.add(TS4_WITH_SENTINALS + " WooHoo 3a");
         linesThird.add("WooHoo 3a1");
-        linesThird.add(TIMESTAMP6 + " WooHoo 3b");
+        linesThird.add(TS6_WITH_SENTINALS + " WooHoo 3b");
         linesThird.add("WooHoo 3b1");
 
         List<LogEntry> logEntriesFirst =
-                Utils.createLogEntries(SOURCE, linesFirst, timestampStartSentinal, timestampEndSentinal, SDF);
+                Utils.createLogEntries(SOURCE, linesFirst, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         List<LogEntry> logEntriesSecond =
-                Utils.createLogEntries(SOURCE2, linesSecond, timestampStartSentinal, timestampEndSentinal, SDF);
+                Utils.createLogEntries(SOURCE2, linesSecond, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         List<LogEntry> logEntriesThird =
-                Utils.createLogEntries(SOURCE3, linesThird, timestampStartSentinal, timestampEndSentinal, SDF);
+                Utils.createLogEntries(SOURCE3, linesThird, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         ///////////////////////
         // Order doesn't matter
@@ -323,12 +338,12 @@ public class UtilsTest
     public void testCreateTwoLogEntriesListWithFirstHavingTwoLines() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        lines.add(TIMESTAMP1 + " WooHoo 1a");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 1a");
         lines.add("WooHoo 1b");
 
-        lines.add(TIMESTAMP1 + " WooHoo 2a");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 2a");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -337,12 +352,12 @@ public class UtilsTest
     public void testCreateTwoLogEntriesListWithSecondHavingTwoLines() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        lines.add(TIMESTAMP1 + " WooHoo 1a");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 1a");
 
-        lines.add(TIMESTAMP1 + " WooHoo 2a");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 2a");
         lines.add("WooHoo 2b");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, timestampStartSentinal, timestampEndSentinal, SDF);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());

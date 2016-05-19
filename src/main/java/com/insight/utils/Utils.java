@@ -49,8 +49,16 @@ public class Utils {
 
         ////////////////////////////////
         // Extract the display timestamp
-        int s = data.indexOf(timestampStartSentinal);
-        int e = data.indexOf(timestampEndSentinal);
+        int s = -1;
+        if (null != timestampStartSentinal && timestampStartSentinal.trim().length() > 0) {
+            s = data.indexOf(timestampStartSentinal);
+        }
+
+        //////////////////////////////////////////////
+        // Need to find the sentinal AFTER the pattern
+        int patternLength = sdf.toPattern().length();
+
+        int e = data.indexOf(timestampEndSentinal, patternLength);
 
         displayTimeStamp = data.substring(s + 1, e);
         payload = data.substring(e + 1);
@@ -101,6 +109,43 @@ public class Utils {
     }
 
     /**
+     *
+     * @param line
+     * @param timestampStartSentinal
+     * @param timestampEndSentinal
+     * @param timestampDateFormat
+     * @return
+     */
+    static boolean foundStart(final String line,
+                       final String timestampStartSentinal,
+                       final String timestampEndSentinal,
+                       final String timestampDateFormat,
+                       final SimpleDateFormat sdf) {
+        boolean atStart =   false;
+
+        //////////////////////////////////
+        // Have a timestampStartSentinal ?
+        if(null != timestampStartSentinal && timestampStartSentinal.trim().length() > 0) {
+            if (line.startsWith(timestampStartSentinal)) {
+                atStart = true;
+            }
+        } else {
+            if(line.length() > timestampDateFormat.length()) {
+                // Possible a timestamp, next test
+                String displayTimeStamp = line.substring(0, timestampDateFormat.length());
+
+                try {
+                    Date d = sdf.parse(displayTimeStamp);
+                    atStart = true;
+                } catch (ParseException e) {
+                    // Not a timestamp
+                }
+            }
+        }
+
+        return atStart;
+    }
+    /**
      * Build a representation of a set of log entries from a single source.
      *
      * @param source The source of the log data
@@ -130,13 +175,13 @@ public class Utils {
 
         for (String line : lines) {
             if(atStart) {
-                if(!line.startsWith(timestampStartSentinal)) {
+                if(! foundStart(line, timestampStartSentinal, timestampEndSentinal, timestampDateFormat, sdf)) {
                     continue;
                 }
                 atStart = false;
             }
 
-            if(line.startsWith(timestampStartSentinal)) {
+            if(foundStart(line, timestampStartSentinal, timestampEndSentinal, timestampDateFormat, sdf)) {
                 if(currentEntry.length() > 0) {
                     LogEntry logEntry = createLogEntry(
                             source,
