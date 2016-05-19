@@ -260,7 +260,7 @@ public class Utils {
         if(args.length < 2) {
             System.err.println("View multiple log files in a single time ascending order list.");
             System.err.println("");
-            System.err.println("Usage: [@property_file] [@-] logfile ...");
+            System.err.println("Usage: [@property_file] [@-] logfile logfile ...");
             System.err.println("");
             System.err.println("Notes:");
             System.err.println("The merged time ascending list is written to stdout.");
