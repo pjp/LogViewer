@@ -340,6 +340,55 @@ public class Utils {
         }
     }
 
+    static void usage(
+            final String propertyFileName,
+            final String timestampStartSentinalPropName,
+            final String timestampStartSentinal,
+            final String timestampEndSentinalPropName,
+            final String timestampEndSentinal,
+            final String timestampDateFormatPropName,
+            final String timestampDateFormat,
+            final String startAtPropName,
+            final String endAtPropName) {
+
+        System.err.println("View multiple log files in a single time ascending order list.");
+        System.err.println("");
+        System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [#s#S] [#e#E] [#t#TS] logfile logfile ...");
+        System.err.println("");
+        System.err.println("   @-      Do not load any properties file.");
+        System.err.println("   @FILE   A properties file to load configuration values from.");
+        System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
+        System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
+        System.err.println("   #s#S    Set the log entry TimeStamp leading character(s) to S.");
+        System.err.println("   #e#E    Set the log entry TimeStamp trailing character(s) to E.");
+        System.err.println("   #t#TS   Set the log entry TimeStamp formatter to TS");
+        System.err.println("");
+        System.err.println("Notes:");
+        System.err.println("");
+        System.err.println("The merged time ascending list is written to stdout.");
+        System.err.println("");
+        System.err.println("Command line values override everything else, and HAVE to be in");
+        System.err.println("the same format as the default values.");
+        System.err.println("");
+        System.err.println("If #s# and #e# are set to an empty value, no filtering will be enabled for that value.");
+        System.err.println("");
+        System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
+        System.err.println("directory will be read if it exists. To prevent this, either explicitly");
+        System.err.println("specify an alternative file '@filename', else specify '@-' to prevent using a default.");
+        System.err.println("");
+        System.err.println("The property file can contain these keys, default values are used if");
+        System.err.println("the property is not specified, or no property file specified.");
+        System.err.println("");
+        System.err.println(String.format("Key: [%-35s], default is '%s'", timestampStartSentinalPropName, timestampStartSentinal));
+        System.err.println(String.format("Key: [%-35s], default is '%s'", timestampEndSentinalPropName, timestampEndSentinal));
+        System.err.println(String.format("Key: [%-35s], default is '%s'", timestampDateFormatPropName, timestampDateFormat));
+        System.err.println(String.format("Key: [%-35s], default is '%s'", startAtPropName, "empty or not set -> Earliest"));
+        System.err.println(String.format("Key: [%-35s], default is '%s'", endAtPropName, "empty or not set -> Latest"));
+
+        System.exit(1);
+    }
+
+
     /**
      * For usage from the command line
      *
@@ -361,39 +410,15 @@ public class Utils {
         final String endAtPropName                      = "logentry.filter.end.date";
 
         if(args.length < 2) {
-            System.err.println("View multiple log files in a single time ascending order list.");
-            System.err.println("");
-            System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [#s#S] [#e#E] [#t#TS] logfile logfile ...");
-            System.err.println("");
-            System.err.println("   @-      Do not load any properties file.");
-            System.err.println("   @FILE   A properties file to load configuration values from.");
-            System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
-            System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
-            System.err.println("   #s#S    Set the log entry TimeStamp leading character(s) to S.");
-            System.err.println("   #e#E    Set the log entry TimeStamp trailing character(s) to E.");
-            System.err.println("   #t#TS   Set the log entry TimeStamp formatter to TS");
-            System.err.println("");
-            System.err.println("Notes:");
-            System.err.println("");
-            System.err.println("The merged time ascending list is written to stdout.");
-            System.err.println("");
-            System.err.println("Command line values override everything else, and HAVE to be in");
-            System.err.println("the same format as the default values.");
-            System.err.println("");
-            System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
-            System.err.println("directory will be read if it exists. To prevent this, either explicitly");
-            System.err.println("specify an alternative file '@filename', else specify '@-' to prevent using a default.");
-            System.err.println("");
-            System.err.println("The property file can contain these keys, default values are used if");
-            System.err.println("the property is not specified, or no property file specified.");
-            System.err.println("");
-            System.err.println(String.format("Key: [%-35s], default is '%s'", timestampStartSentinalPropName, timestampStartSentinal));
-            System.err.println(String.format("Key: [%-35s], default is '%s'", timestampEndSentinalPropName, timestampEndSentinal));
-            System.err.println(String.format("Key: [%-35s], default is '%s'", timestampDateFormatPropName, timestampDateFormat));
-            System.err.println(String.format("Key: [%-35s], default is '%s'", startAtPropName, "empty or not set -> Earliest"));
-            System.err.println(String.format("Key: [%-35s], default is '%s'", endAtPropName, "empty or not set -> Latest"));
-
-            System.exit(1);
+            usage(  propertyFileName,
+                    timestampStartSentinalPropName,
+                    timestampStartSentinal,
+                    timestampEndSentinalPropName,
+                    timestampEndSentinal,
+                    timestampDateFormatPropName,
+                    timestampDateFormat,
+                    startAtPropName,
+                    endAtPropName);
         }
 
         List<String>logFiles                = new ArrayList<>();
@@ -403,13 +428,14 @@ public class Utils {
         String cmdLineStartSentinal         = null;
         String cmdLineEndSentinal           = null;
         String cmdLineDateFormat            = null;
+        String cmdLinePropertyFileName      = null;
 
         for(String filename : args) {
             if (filename.startsWith("@-")) {
-                propertyFileName = null;
                 usingDefaultPropertyFile = false;
+                cmdLinePropertyFileName = filename;
             } else if (filename.startsWith("@")) {
-                propertyFileName = filename.substring(1);
+                cmdLinePropertyFileName = filename.substring(1);
                 usingDefaultPropertyFile = false;
             } else if (filename.startsWith("=s=")) {
                 cmdLineStartAt = filename.substring(3);
@@ -423,6 +449,27 @@ public class Utils {
                 cmdLineDateFormat = filename.substring(3);
             } else {
                 logFiles.add(filename);
+            }
+        }
+
+        if(logFiles.size() < 1) {
+            usage(  propertyFileName,
+                    timestampStartSentinalPropName,
+                    timestampStartSentinal,
+                    timestampEndSentinalPropName,
+                    timestampEndSentinal,
+                    timestampDateFormatPropName,
+                    timestampDateFormat,
+                    startAtPropName,
+                    endAtPropName);
+        }
+
+        // Pain, need to do some dnacing for the property file name.
+        if(null != cmdLinePropertyFileName) {
+            if(cmdLinePropertyFileName.startsWith("@-")) {
+                propertyFileName = null;
+            } else {
+                propertyFileName = cmdLinePropertyFileName;
             }
         }
 
