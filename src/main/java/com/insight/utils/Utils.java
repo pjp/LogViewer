@@ -386,7 +386,8 @@ public class Utils {
         System.err.println("Command line values override everything else, and HAVE to be in");
         System.err.println("the same format as the default values.");
         System.err.println("");
-        System.err.println("If =s= and =e= are set to an empty value, no filtering will be enabled for that value.");
+        System.err.println("If =s= and =e= are set to an empty value, no filtering will be enabled for that value,");
+        System.err.println("else they HAVE to match the TimeStamp format EXACTLY.");
         System.err.println("");
         System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
         System.err.println("directory will be read if it exists. To prevent this, either explicitly");
