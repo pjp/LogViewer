@@ -119,7 +119,7 @@ public class UtilsTest
         assertEquals(2, logEntries.size());
     }
 
-    public void testLogFileCompare() throws ParseException, FileNotFoundException {
+    public void testLogFileCompareOne() throws ParseException, FileNotFoundException {
         String file1                = "src/test/resources/gbsheusrchp08-EMEA-ES-PROD.log";
         String file2                = "src/test/resources/gbsheusrchp07-EMEA-ES-PROD.log" ;
         String file3                = "src/test/resources/gbsheusrchp01-EMEA-ES-PROD.log" ;
@@ -149,6 +149,26 @@ public class UtilsTest
         Utils.emitList(timeSortedLogEntries, sources, "Filtered, start at " + startAt + ", end at " + endAt, out);
     }
 
+    public void testLogFileCompareTwo() throws ParseException, FileNotFoundException {
+        String file1                = "src/test/resources/jb-server.log";
+        String startAt              = "2016-05-18 17:45:57,849";
+        String endAt                = "2016-05-18 17:46:01,793";
+        List<LogEntry> logEntries   = null;
+        List<List<LogEntry>> logs   = new ArrayList<>();
+
+        logEntries = Utils.createLogEntries(file1, TS1_FORMAT, startAt, endAt);
+        logs.add(logEntries);
+
+        List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
+
+        List<String> sources = new ArrayList<>();
+        sources.add(Utils.getFileNameFromFullPath(file1));
+
+        PrintStream out = new PrintStream(new FileOutputStream(new File("result2.log")));
+
+        Utils.emitList(timeSortedLogEntries, sources, "Filtered, start at " + startAt + ", end at " + endAt, out);
+    }
+
     public void testCreateTwoLogEntriesListWithTwoLinesEach() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
@@ -168,13 +188,13 @@ public class UtilsTest
 
         LogEntry logEntry = logEntries.get(0);
         assertEquals(
-                "WooHoo 1a" + Utils.LINE_SEP + "WooHoo 1b" + Utils.LINE_SEP,
+                " WooHoo 1a" + Utils.LINE_SEP + "WooHoo 1b" + Utils.LINE_SEP,
                 logEntry.getPayload());
         assertEquals("[2016-05-16 03:34:56,789]", logEntry.getDisplayTimeStamp());
 
         logEntry = logEntries.get(1);
         assertEquals(
-                "WooHoo 2a" + Utils.LINE_SEP + "WooHoo 2b" + Utils.LINE_SEP,
+                " WooHoo 2a" + Utils.LINE_SEP + "WooHoo 2b" + Utils.LINE_SEP,
                 logEntry.getPayload());
         assertEquals("[2016-05-16 06:34:56,789]", logEntry.getDisplayTimeStamp());
 
@@ -209,9 +229,9 @@ public class UtilsTest
                         endAt);
 
         assertEquals(3, logEntries.size());
-        assertEquals("WooHoo 2" + Utils.LINE_SEP, logEntries.get(0).getPayload());
-        assertEquals("WooHoo 3" + Utils.LINE_SEP, logEntries.get(1).getPayload());
-        assertEquals("WooHoo 4" + Utils.LINE_SEP, logEntries.get(2).getPayload());
+        assertEquals(" WooHoo 2" + Utils.LINE_SEP, logEntries.get(0).getPayload());
+        assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(1).getPayload());
+        assertEquals(" WooHoo 4" + Utils.LINE_SEP, logEntries.get(2).getPayload());
 
         ///////////////////////////////////
         startAt              = TS3_WITH_SENTINALS;
@@ -226,12 +246,12 @@ public class UtilsTest
                         endAt);
 
         assertEquals(2, logEntries.size());
-        assertEquals("WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
-        assertEquals("WooHoo 4" + Utils.LINE_SEP, logEntries.get(1).getPayload());
+        assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
+        assertEquals(" WooHoo 4" + Utils.LINE_SEP, logEntries.get(1).getPayload());
 
         ///////////////////////////////////
-        startAt              = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
-        endAt                = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
+        startAt              = TS3_WITH_SENTINALS;
+        endAt                = TS3_WITH_SENTINALS;
 
         logEntries =
                 Utils.createLogEntries(
@@ -242,7 +262,7 @@ public class UtilsTest
                         endAt);
 
         assertEquals(1, logEntries.size());
-        assertEquals("WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
+        assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
 
         ///////////////////////////////////
         startAt              = TS1_WITH_SENTINALS;

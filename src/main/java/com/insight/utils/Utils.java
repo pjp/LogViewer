@@ -51,7 +51,7 @@ public class Utils {
         int patternLength   = sdf.toPattern().length();
 
         displayTimeStamp    = data.substring(0, patternLength);
-        payload             = data.substring(patternLength + 1);
+        payload             = data.substring(patternLength);
 
         ///////////////////////////////
         // Build any time range filters
@@ -144,52 +144,77 @@ public class Utils {
         boolean atStart             = true;
         SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
         long ts                     = 0;
+        List<Long>timestampIndexes  = new ArrayList<>(lines.size());
 
         sdf.setLenient(false);
 
-        for (String line : lines) {
+        int startingLogEntryIndex   = 0;
+        int maxIndex                = lines.size() - 1;
+
+        //////////////////////////////////////////////////////
+        // Build a list of indexes where timestamps were found
+        for(int index = 0 ; index <= maxIndex ; index++) {
+            String line = lines.get(index);
+
             ts = mSecTimeStampFromStartOfLine(line, sdf);
 
-            if(atStart) {
-                if(0 == ts) {
+            timestampIndexes.add(ts);
+
+            /////////////////////////////////////////////////////
+            // Initially skip all lines until we find a timestamp
+            if (atStart) {
+                if (0 == ts) {
                     continue;
                 }
+
+                startingLogEntryIndex = index;
                 atStart = false;
             }
-
-            // TODO: FIX cannot handle single log entry lines
-
-            if(ts > 0) {
-                if(currentEntry.length() > 0) {
-                    LogEntry logEntry = createLogEntry(
-                            source,
-                            currentEntry.toString(),
-                            sdf,
-                            ts,
-                            startAt,
-                            endAt);
-
-                    if(null != logEntry) {
-                        logEntries.add(logEntry);
-                    }
-
-                    currentEntry = new StringBuilder();
-                }
-            }
-            currentEntry.append(line).append(LINE_SEP);
         }
 
-        if(currentEntry.length() > 0) {
-            LogEntry logEntry = createLogEntry(
-                    source,
-                    currentEntry.toString(),
-                    sdf,
-                    ts,
-                    startAt,
-                    endAt);
+        ///////////////////////////////////////////////
+        // Examine the original list of log entry lines
+        for(int index = startingLogEntryIndex ; index <= maxIndex ; index++) {
+            ts = timestampIndexes.get(index);
 
-            if(null != logEntry) {
-                logEntries.add(logEntry);
+            if(ts > 0) {
+                //////////////////////
+                // Find next timestamp
+                int nextIndex = index + 1;
+
+                while(nextIndex <= maxIndex) {
+                    if(timestampIndexes.get(nextIndex) > 0) {
+                        // Found the next log entry timestamp
+                        break;
+                    }
+                    nextIndex++;
+                }
+
+                ////////////////////////////////////////////////////////////////////////
+                // Extract all the lines up to but not including the next timestamp line
+                currentEntry.setLength(0);
+
+                for(int i = index ; i < nextIndex; i++) {
+                    String nextLine = lines.get(i);
+
+                    currentEntry.append(nextLine).append(LINE_SEP);
+                }
+
+                ////////////////////////////
+                // Try and create a LogEntry
+                LogEntry logEntry = createLogEntry(
+                        source,
+                        currentEntry.toString(),
+                        sdf,
+                        ts,
+                        startAt,
+                        endAt);
+
+                if(null != logEntry) {
+                    //////////////////////////////////////
+                    // Did not get filtered out, so add it
+                    logEntries.add(logEntry);
+                }
             }
         }
 
@@ -318,8 +343,8 @@ public class Utils {
             String dts  =   logEntry.getDisplayTimeStamp();
             source      =   logEntry.getSource();
             int index   =   sources.indexOf(source);
-            String pad1 =   String.format("%d  %20s ", index + 1, dts);
-            String pad2 =   String.format("%d  %20s ", index + 1, "");
+            String pad1 =   String.format("%d  %20s", index + 1, dts);
+            String pad2 =   String.format("%d  %20s", index + 1, "");
 
             /////////////////////////////////////////////////////////////////
             // Extract each line from the payload and display it with padding
