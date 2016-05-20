@@ -371,13 +371,13 @@ public class Utils {
 
         System.err.println("View multiple log files in a single time ascending order list.");
         System.err.println("");
-        System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [#t#TS] logfile logfile ...");
+        System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [=t=TS] logfile logfile ...");
         System.err.println("");
         System.err.println("   @-      Do not load any properties file.");
         System.err.println("   @FILE   A properties file to load configuration values from.");
         System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
         System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
-        System.err.println("   #t#TS   Set the log entry TimeStamp formatter to TS");
+        System.err.println("   =t=TS   Set the log entry TimeStamp formatter to TS");
         System.err.println("");
         System.err.println("Notes:");
         System.err.println("");
@@ -386,7 +386,7 @@ public class Utils {
         System.err.println("Command line values override everything else, and HAVE to be in");
         System.err.println("the same format as the default values.");
         System.err.println("");
-        System.err.println("If #s# and #e# are set to an empty value, no filtering will be enabled for that value.");
+        System.err.println("If =s= and =e= are set to an empty value, no filtering will be enabled for that value.");
         System.err.println("");
         System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
         System.err.println("directory will be read if it exists. To prevent this, either explicitly");
