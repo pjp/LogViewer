@@ -119,6 +119,27 @@ public class UtilsTest
         assertEquals(2, logEntries.size());
     }
 
+    public void testCreateTwoLogEntriesListWithFirstWithOneLineSecondWithTwo() throws ParseException {
+        List<String> lines          = new ArrayList<String>() ;
+        LogEntry logEntry           = null;
+
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 1");
+        lines.add(TS1_WITH_SENTINALS + " WooHoo 2");
+        lines.add("WooHoo 2a");
+
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+
+        assertNotNull(logEntries);
+        assertEquals(2, logEntries.size());
+
+        logEntry = logEntries.get(0);
+        assertEquals(" WooHoo 1" + Utils.LINE_SEP, logEntry.getPayload());
+
+        logEntry = logEntries.get(1);
+        assertEquals(" WooHoo 2" + Utils.LINE_SEP + "WooHoo 2a" + Utils.LINE_SEP, logEntry.getPayload());
+
+    }
+
     public void testLogFileCompareOne() throws ParseException, FileNotFoundException {
         String file1                = "src/test/resources/gbsheusrchp08-EMEA-ES-PROD.log";
         String file2                = "src/test/resources/gbsheusrchp07-EMEA-ES-PROD.log" ;
