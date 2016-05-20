@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class UtilsTest
     String TS1_START_SENTINAL           = "[";
     String TS1_END_SENTINAL             = "]";
     String TS1_FORMAT                   = "yyyy-MM-dd HH:mm:ss,SSS";
+    String TS1_FORMAT_WITH_SENTINALS    = TS1_START_SENTINAL + TS1_FORMAT + TS1_END_SENTINAL;
     String TS1                          = "2016-05-16 03:34:56,789";
     String TS2                          = "2016-05-16 06:34:56,789";
     String TS3                          = "2016-05-16 09:34:56,789";
@@ -55,7 +57,7 @@ public class UtilsTest
     public void testCreateEmptyLogEntriesList() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -66,26 +68,17 @@ public class UtilsTest
         List<LogEntry> logEntries   = null;
 
         lines.add(TS1_WITH_SENTINALS + " WooHoo");
-        logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(1, logEntries.size());
-
-        //////////////////////////////////////
-        lines.clear();
-        lines.add(TS1 + TS1_END_SENTINAL + " WooHoo");
-        logEntries = Utils.createLogEntries(SOURCE, lines, null, " ", TS1_FORMAT);
-
-        assertNotNull(logEntries);
-        assertEquals(1, logEntries.size());
-
     }
 
     public void testCreateSingleLogEntriesListWithOneNonStartingLine() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
         lines.add(" WooHoo");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -96,7 +89,7 @@ public class UtilsTest
 
         lines.add(" WooHoo1");
         lines.add(" WooHoo2");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -109,7 +102,7 @@ public class UtilsTest
         lines.add(" WooHoo2");
         lines.add(TS1_WITH_SENTINALS + " WooHoo");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(1, logEntries.size());
@@ -120,7 +113,7 @@ public class UtilsTest
 
         lines.add(TS1_WITH_SENTINALS + " WooHoo 1");
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -130,18 +123,18 @@ public class UtilsTest
         String file1                = "src/test/resources/gbsheusrchp08-EMEA-ES-PROD.log";
         String file2                = "src/test/resources/gbsheusrchp07-EMEA-ES-PROD.log" ;
         String file3                = "src/test/resources/gbsheusrchp01-EMEA-ES-PROD.log" ;
-        String startAt              = "2016-05-16 00:00:00,000";
-        String endAt                = "2016-05-16 05:00:00,000";
+        String startAt              = "[2016-05-16 00:00:00,000]";
+        String endAt                = "[2016-05-16 05:00:00,000]";
         List<LogEntry> logEntries   = null;
         List<List<LogEntry>> logs   = new ArrayList<>();
 
-        logEntries = Utils.createLogEntries(file1, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT, startAt, endAt);
+        logEntries = Utils.createLogEntries(file1, TS1_FORMAT_WITH_SENTINALS, startAt, endAt);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file2, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT, startAt, endAt);
+        logEntries = Utils.createLogEntries(file2, TS1_FORMAT_WITH_SENTINALS, startAt, endAt);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file3, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT, startAt, endAt);
+        logEntries = Utils.createLogEntries(file3, TS1_FORMAT_WITH_SENTINALS, startAt, endAt);
         logs.add(logEntries);
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
@@ -167,7 +160,7 @@ public class UtilsTest
 
         List<List<LogEntry>> logs = new ArrayList<>();
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
         logs.add(logEntries);
 
         assertNotNull(logEntries);
@@ -175,15 +168,15 @@ public class UtilsTest
 
         LogEntry logEntry = logEntries.get(0);
         assertEquals(
-                " WooHoo 1a" + Utils.LINE_SEP + "WooHoo 1b" + Utils.LINE_SEP,
+                "WooHoo 1a" + Utils.LINE_SEP + "WooHoo 1b" + Utils.LINE_SEP,
                 logEntry.getPayload());
-        assertEquals("2016-05-16 03:34:56,789", logEntry.getDisplayTimeStamp());
+        assertEquals("[2016-05-16 03:34:56,789]", logEntry.getDisplayTimeStamp());
 
         logEntry = logEntries.get(1);
         assertEquals(
-                " WooHoo 2a" + Utils.LINE_SEP + "WooHoo 2b" + Utils.LINE_SEP,
+                "WooHoo 2a" + Utils.LINE_SEP + "WooHoo 2b" + Utils.LINE_SEP,
                 logEntry.getPayload());
-        assertEquals("2016-05-16 06:34:56,789", logEntry.getDisplayTimeStamp());
+        assertEquals("[2016-05-16 06:34:56,789]", logEntry.getDisplayTimeStamp());
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
         List<String> sources = new ArrayList<>();
@@ -204,41 +197,37 @@ public class UtilsTest
         lines.add(TS4_WITH_SENTINALS + " WooHoo 4");
 
         ///////////////////////////////////
-        startAt              = TS1_WITH_SENTINALS.substring(1, TS1_WITH_SENTINALS.length());
-        endAt                = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
+        startAt              = TS1_WITH_SENTINALS;
+        endAt                = TS5_WITH_SENTINALS;
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        TS1_START_SENTINAL,
-                        TS1_END_SENTINAL,
-                        TS1_FORMAT,
+                        TS1_FORMAT_WITH_SENTINALS,
                         startAt,
                         endAt);
 
         assertEquals(3, logEntries.size());
-        assertEquals(" WooHoo 2" + Utils.LINE_SEP, logEntries.get(0).getPayload());
-        assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(1).getPayload());
-        assertEquals(" WooHoo 4" + Utils.LINE_SEP, logEntries.get(2).getPayload());
+        assertEquals("WooHoo 2" + Utils.LINE_SEP, logEntries.get(0).getPayload());
+        assertEquals("WooHoo 3" + Utils.LINE_SEP, logEntries.get(1).getPayload());
+        assertEquals("WooHoo 4" + Utils.LINE_SEP, logEntries.get(2).getPayload());
 
         ///////////////////////////////////
-        startAt              = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
-        endAt                = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
+        startAt              = TS3_WITH_SENTINALS;
+        endAt                = TS5_WITH_SENTINALS;
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        TS1_START_SENTINAL,
-                        TS1_END_SENTINAL,
-                        TS1_FORMAT,
+                        TS1_FORMAT_WITH_SENTINALS,
                         startAt,
                         endAt);
 
         assertEquals(2, logEntries.size());
-        assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
-        assertEquals(" WooHoo 4" + Utils.LINE_SEP, logEntries.get(1).getPayload());
+        assertEquals("WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
+        assertEquals("WooHoo 4" + Utils.LINE_SEP, logEntries.get(1).getPayload());
 
         ///////////////////////////////////
         startAt              = TS3_WITH_SENTINALS.substring(1, TS3_WITH_SENTINALS.length());
@@ -248,42 +237,36 @@ public class UtilsTest
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        TS1_START_SENTINAL,
-                        TS1_END_SENTINAL,
-                        TS1_FORMAT,
+                        TS1_FORMAT_WITH_SENTINALS,
                         startAt,
                         endAt);
 
         assertEquals(1, logEntries.size());
-        assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
+        assertEquals("WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
 
         ///////////////////////////////////
-        startAt              = TS1_WITH_SENTINALS.substring(1, TS1_WITH_SENTINALS.length());
-        endAt                = TS1_WITH_SENTINALS.substring(1, TS1_WITH_SENTINALS.length());
+        startAt              = TS1_WITH_SENTINALS;
+        endAt                = TS1_WITH_SENTINALS;
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        TS1_START_SENTINAL,
-                        TS1_END_SENTINAL,
-                        TS1_FORMAT,
+                        TS1_FORMAT_WITH_SENTINALS,
                         startAt,
                         endAt);
 
         assertEquals(0, logEntries.size());
 
         ///////////////////////////////////
-        startAt              = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
-        endAt                = TS5_WITH_SENTINALS.substring(1, TS5_WITH_SENTINALS.length());
+        startAt              = TS5_WITH_SENTINALS;
+        endAt                = TS5_WITH_SENTINALS;
 
         logEntries =
                 Utils.createLogEntries(
                         SOURCE,
                         lines,
-                        TS1_START_SENTINAL,
-                        TS1_END_SENTINAL,
-                        TS1_FORMAT,
+                        TS1_FORMAT_WITH_SENTINALS,
                         startAt,
                         endAt);
 
@@ -311,13 +294,13 @@ public class UtilsTest
         linesThird.add("WooHoo 3b1");
 
         List<LogEntry> logEntriesFirst =
-                Utils.createLogEntries(SOURCE, linesFirst, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+                Utils.createLogEntries(SOURCE, linesFirst, TS1_WITH_SENTINALS);
 
         List<LogEntry> logEntriesSecond =
-                Utils.createLogEntries(SOURCE2, linesSecond, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+                Utils.createLogEntries(SOURCE2, linesSecond, TS1_WITH_SENTINALS);
 
         List<LogEntry> logEntriesThird =
-                Utils.createLogEntries(SOURCE3, linesThird, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+                Utils.createLogEntries(SOURCE3, linesThird, TS1_WITH_SENTINALS);
 
         ///////////////////////
         // Order doesn't matter
@@ -343,7 +326,7 @@ public class UtilsTest
 
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2a");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -357,9 +340,140 @@ public class UtilsTest
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2a");
         lines.add("WooHoo 2b");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_START_SENTINAL, TS1_END_SENTINAL, TS1_FORMAT);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
+    }
+
+
+    public void testExtractingTimeStampFromLine() {
+        String line            = null;
+        SimpleDateFormat sdf   = null;
+        long mS                 = 0;
+
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        line = "";
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        line = " ";
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        line = "abc";
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        ///////////////////////////////////////////
+        sdf = new SimpleDateFormat("[" + TS1_FORMAT + "]");
+        sdf.setLenient(false);
+        line = null;
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        line = "";
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        line = " ";
+        assertEquals(0, Utils.mSecTimeStampFromStartOfLine(line, sdf));
+
+        ///////////////////////////////////////////
+        line = TS1;
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " " + TS1;
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " " + TS1 + " ";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = "[" + TS1 + " ";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " " + TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = "[ " + TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " [" + TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = "[" + TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertTrue(mS > 0);
+
+        ///////////////////////////////////////////
+        line = "[" + TS1 + "] ";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertTrue(mS > 0);
+
+        ///////////////////////////////////////////
+        ///////////////////////////////////////////
+        sdf = new SimpleDateFormat(TS1_FORMAT + " ");
+        sdf.setLenient(false);
+
+        ///////////////////////////////////////////
+        line = "[" + TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " " + TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = TS1 + "]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = TS1 + "] ";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " " + TS1;
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = " " + TS1 + " ";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertEquals(0, mS);
+
+        ///////////////////////////////////////////
+        line = TS1 + " ";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertTrue(mS > 0);
+
+        ///////////////////////////////////////////
+        line = TS1 + " ]";
+        mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
+        assertTrue(mS > 0);
     }
 }

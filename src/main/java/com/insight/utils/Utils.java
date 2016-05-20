@@ -1,7 +1,9 @@
 package com.insight.utils;
 
+import javax.swing.text.Position;
 import java.io.*;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -22,9 +24,8 @@ public class Utils {
      *
      * @param source The source of the log data
      * @param data The log entry's data (may contain multiple lines)
-     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
-     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param sdf A Simple date formatter for the log entry's timestamp
+     * @param rawTimeStamp mS timestamp of this entry.
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
      *                null or empty implies no filtering
      * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
@@ -32,15 +33,13 @@ public class Utils {
      * @return
      * @throws ParseException
      */
-    public static LogEntry createLogEntry(
+    protected static LogEntry createLogEntry(
             final String source,
             final String data,
-            final String timestampStartSentinal,
-            final String timestampEndSentinal,
             final SimpleDateFormat sdf,
+            final long rawTimeStamp,
             final String startAt,
             final String endAt) throws ParseException {
-        long rawTimeStamp = 0;
         String displayTimeStamp = "0";
         String payload = null;
         LogEntry logEntry = null;
@@ -49,24 +48,10 @@ public class Utils {
 
         ////////////////////////////////
         // Extract the display timestamp
-        int s = -1;
-        if (null != timestampStartSentinal && timestampStartSentinal.trim().length() > 0) {
-            s = data.indexOf(timestampStartSentinal);
-        }
+        int patternLength   = sdf.toPattern().length();
 
-        //////////////////////////////////////////////
-        // Need to find the sentinal AFTER the pattern
-        int patternLength = sdf.toPattern().length();
-
-        int e = data.indexOf(timestampEndSentinal, patternLength);
-
-        displayTimeStamp = data.substring(s + 1, e);
-        payload = data.substring(e + 1);
-
-        //////////////////////////////////////////////////////
-        // Create the raw timestamp from the display timestamp
-        Date d = sdf.parse(displayTimeStamp);
-        rawTimeStamp = d.getTime();
+        displayTimeStamp    = data.substring(0, patternLength);
+        payload             = data.substring(patternLength + 1);
 
         ///////////////////////////////
         // Build any time range filters
@@ -92,66 +77,54 @@ public class Utils {
      *
      * @param source The source of the log data
      * @param lines The lines of data that make up a log entry
-     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
-     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @return
      * @throws ParseException
      */
-    public static List<LogEntry> createLogEntries(
+    protected static List<LogEntry> createLogEntries(
             final String source,
             final List<String> lines,
-            final String timestampStartSentinal,
-            final String timestampEndSentinal,
             final String timestampDateFormat) throws ParseException {
 
-        return createLogEntries(source, lines,timestampStartSentinal, timestampEndSentinal, timestampDateFormat, null, null);
+        return createLogEntries(source, lines, timestampDateFormat, null, null);
     }
 
     /**
+     * Determine if the line starts with a matching timestamp
      *
-     * @param line
-     * @param timestampStartSentinal (may be null or empty)
-     * @param timestampEndSentinal
-     * @param timestampDateFormat
-     * @return
+     * @param line The line to match against.
+     * @param sdf A date formatter to match the line's timestamp against.
+     * @return extracted (matched) timestamp as mS; else 0
      */
-    static boolean foundStart(final String line,
-                       final String timestampStartSentinal,
-                       final String timestampEndSentinal,
-                       final String timestampDateFormat,
-                       final SimpleDateFormat sdf) {
-        boolean atStart =   false;
+    protected static long mSecTimeStampFromStartOfLine(final String line, final SimpleDateFormat sdf) {
+        long ts = 0 ;
 
-        //////////////////////////////////
-        // Have a timestampStartSentinal ?
-        if(null != timestampStartSentinal && timestampStartSentinal.trim().length() > 0) {
-            if (line.startsWith(timestampStartSentinal)) {
-                atStart = true;
-            }
-        } else {
-            if(line.length() > timestampDateFormat.length()) {
-                // Possible a timestamp, next test
-                String displayTimeStamp = line.substring(0, timestampDateFormat.length());
-
-                try {
-                    Date d = sdf.parse(displayTimeStamp);
-                    atStart = true;
-                } catch (ParseException e) {
-                    // Not a timestamp
-                }
-            }
+        if(null == sdf) {
+            return ts;
         }
 
-        return atStart;
+        String pattern      = sdf.toPattern();
+        int patternLength   = pattern.length();
+
+        if(null == line || line.length() < patternLength) {
+            return ts;
+        }
+
+        String lineSegment  = line.substring(0, patternLength);
+
+        try {
+            Date d  = sdf.parse(lineSegment);
+            ts      = d.getTime();
+        } catch (ParseException e) {}
+
+        return ts;
     }
+
     /**
      * Build a representation of a set of log entries from a single source.
      *
      * @param source The source of the log data
      * @param lines The lines of data that make up a log entry
-     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
-     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
      *                null or empty implies no filtering
@@ -163,8 +136,6 @@ public class Utils {
     public static List<LogEntry> createLogEntries(
             final String source,
             final List<String> lines,
-            final String timestampStartSentinal,
-            final String timestampEndSentinal,
             final String timestampDateFormat,
             final String startAt,
             final String endAt) throws ParseException {
@@ -172,23 +143,29 @@ public class Utils {
         StringBuilder currentEntry  = new StringBuilder();
         boolean atStart             = true;
         SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
+        long ts                     = 0;
+
+        sdf.setLenient(false);
 
         for (String line : lines) {
+            ts = mSecTimeStampFromStartOfLine(line, sdf);
+
             if(atStart) {
-                if(! foundStart(line, timestampStartSentinal, timestampEndSentinal, timestampDateFormat, sdf)) {
+                if(0 == ts) {
                     continue;
                 }
                 atStart = false;
             }
 
-            if(foundStart(line, timestampStartSentinal, timestampEndSentinal, timestampDateFormat, sdf)) {
+            // TODO: FIX cannot handle single log entry lines
+
+            if(ts > 0) {
                 if(currentEntry.length() > 0) {
                     LogEntry logEntry = createLogEntry(
                             source,
                             currentEntry.toString(),
-                            timestampStartSentinal,
-                            timestampEndSentinal,
                             sdf,
+                            ts,
                             startAt,
                             endAt);
 
@@ -206,9 +183,8 @@ public class Utils {
             LogEntry logEntry = createLogEntry(
                     source,
                     currentEntry.toString(),
-                    timestampStartSentinal,
-                    timestampEndSentinal,
                     sdf,
+                    ts,
                     startAt,
                     endAt);
 
@@ -236,28 +212,6 @@ public class Utils {
      * Build a representation of a set of log entries from a single file.
      *
      * @param fileName The file containing log entries.
-     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
-     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
-     * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
-     * @return
-     * @throws FileNotFoundException
-     * @throws ParseException
-     */
-    public static List<LogEntry> createLogEntries(
-            final String fileName,
-            final String timestampStartSentinal,
-            final String timestampEndSentinal,
-            final String timestampDateFormat) throws FileNotFoundException, ParseException {
-
-        return createLogEntries(fileName, timestampStartSentinal, timestampEndSentinal, timestampDateFormat, null, null);
-    }
-
-    /**
-     * Build a representation of a set of log entries from a single file.
-     *
-     * @param fileName The file containing log entries.
-     * @param timestampStartSentinal The character string denoting the start of a log entry (may be null or empty).
-     * @param timestampEndSentinal The character string denoting the end of the log timestamp.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
      *                null or empty implies no filtering
@@ -269,8 +223,6 @@ public class Utils {
      */
     public static List<LogEntry> createLogEntries(
             final String fileName,
-            final String timestampStartSentinal,
-            final String timestampEndSentinal,
             final String timestampDateFormat,
             final String startAt,
             final String endAt) throws FileNotFoundException, ParseException {
@@ -282,12 +234,11 @@ public class Utils {
             while (scanner.hasNext()){
                 lines.add(scanner.nextLine());
             }
+
             logEntries =
                     createLogEntries(
                             getFileNameFromFullPath(fileName),
                             lines,
-                            timestampStartSentinal,
-                            timestampEndSentinal,
                             timestampDateFormat,
                             startAt,
                             endAt);
@@ -388,10 +339,6 @@ public class Utils {
 
     static void usage(
             final String propertyFileName,
-            final String timestampStartSentinalPropName,
-            final String timestampStartSentinal,
-            final String timestampEndSentinalPropName,
-            final String timestampEndSentinal,
             final String timestampDateFormatPropName,
             final String timestampDateFormat,
             final String startAtPropName,
@@ -399,14 +346,12 @@ public class Utils {
 
         System.err.println("View multiple log files in a single time ascending order list.");
         System.err.println("");
-        System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [#s#S] [#e#E] [#t#TS] logfile logfile ...");
+        System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [#t#TS] logfile logfile ...");
         System.err.println("");
         System.err.println("   @-      Do not load any properties file.");
         System.err.println("   @FILE   A properties file to load configuration values from.");
         System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
         System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
-        System.err.println("   #s#S    Set the log entry TimeStamp leading character(s) to S.");
-        System.err.println("   #e#E    Set the log entry TimeStamp trailing character(s) to E.");
         System.err.println("   #t#TS   Set the log entry TimeStamp formatter to TS");
         System.err.println("");
         System.err.println("Notes:");
@@ -425,8 +370,6 @@ public class Utils {
         System.err.println("The property file can contain these keys, default values are used if");
         System.err.println("the property is not specified, or no property file specified.");
         System.err.println("");
-        System.err.println(String.format("Key: [%-35s], default is '%s'", timestampStartSentinalPropName, timestampStartSentinal));
-        System.err.println(String.format("Key: [%-35s], default is '%s'", timestampEndSentinalPropName, timestampEndSentinal));
         System.err.println(String.format("Key: [%-35s], default is '%s'", timestampDateFormatPropName, timestampDateFormat));
         System.err.println(String.format("Key: [%-35s], default is '%s'", startAtPropName, "empty or not set -> Earliest"));
         System.err.println(String.format("Key: [%-35s], default is '%s'", endAtPropName, "empty or not set -> Latest"));
@@ -443,14 +386,10 @@ public class Utils {
      * @throws ParseException
      */
     public static void main(final String[] args) throws IOException, ParseException, FileNotFoundException {
-        String timestampStartSentinal                   = "[";
-        String timestampEndSentinal                     = "]";
-        String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
+        String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS ";
         String startAt                                  = null;
         String endAt                                    = null;
         String propertyFileName                         = "logviewer.properties";
-        final String timestampStartSentinalPropName     = "logentry.timestamp.start.sentinal";
-        final String timestampEndSentinalPropName       = "logentry.timestamp.end.sentinal";
         final String timestampDateFormatPropName        = "logentry.timestamp.date.format";
         final String startAtPropName                    = "logentry.filter.start.date";
         final String endAtPropName                      = "logentry.filter.end.date";
@@ -468,10 +407,6 @@ public class Utils {
 
         if(args.length < 1) {
             usage(  propertyFileName,
-                    timestampStartSentinalPropName,
-                    timestampStartSentinal,
-                    timestampEndSentinalPropName,
-                    timestampEndSentinal,
                     timestampDateFormatPropName,
                     timestampDateFormat,
                     startAtPropName,
@@ -482,8 +417,6 @@ public class Utils {
         boolean usingDefaultPropertyFile    = true;
         String cmdLineStartAt               = null;
         String cmdLineEndAt                 = null;
-        String cmdLineStartSentinal         = null;
-        String cmdLineEndSentinal           = null;
         String cmdLineDateFormat            = null;
         String cmdLinePropertyFileName      = null;
 
@@ -498,10 +431,6 @@ public class Utils {
                 cmdLineStartAt = filename.substring(3);
             } else if (filename.startsWith("=e=")) {
                 cmdLineEndAt = filename.substring(3);
-            } else if(filename.startsWith("#s#")) {
-                cmdLineStartSentinal = filename.substring(3);
-            } else if(filename.startsWith("#e#")) {
-                cmdLineEndSentinal = filename.substring(3);
             } else if(filename.startsWith("=t=")) {
                 cmdLineDateFormat = filename.substring(3);
             } else {
@@ -511,10 +440,6 @@ public class Utils {
 
         if(logFiles.size() < 1) {
             usage(  propertyFileName,
-                    timestampStartSentinalPropName,
-                    timestampStartSentinal,
-                    timestampEndSentinalPropName,
-                    timestampEndSentinal,
                     timestampDateFormatPropName,
                     timestampDateFormat,
                     startAtPropName,
@@ -535,8 +460,6 @@ public class Utils {
                 Properties props = new Properties();
                 props.load(new FileInputStream(propertyFileName));
 
-                timestampStartSentinal  = props.getProperty(timestampStartSentinalPropName, timestampStartSentinal);
-                timestampEndSentinal    = props.getProperty(timestampEndSentinalPropName, timestampEndSentinal);
                 timestampDateFormat     = props.getProperty(timestampDateFormatPropName, timestampDateFormat);
                 startAt                 = props.getProperty(startAtPropName, startAt);
                 endAt                   = props.getProperty(endAtPropName, endAt);
@@ -557,14 +480,6 @@ public class Utils {
             endAt = cmdLineEndAt;
         }
 
-        if(null != cmdLineStartSentinal) {
-            timestampStartSentinal = cmdLineStartSentinal;
-        }
-
-        if(null != cmdLineEndSentinal) {
-            timestampEndSentinal = cmdLineEndSentinal;
-        }
-
         if(null != cmdLineDateFormat) {
             timestampDateFormat = cmdLineDateFormat;
         }
@@ -576,8 +491,6 @@ public class Utils {
             List<LogEntry> logEntries =
                     createLogEntries(
                             logFile,
-                            timestampStartSentinal,
-                            timestampEndSentinal,
                             timestampDateFormat,
                             startAt,
                             endAt);
