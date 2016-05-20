@@ -337,14 +337,23 @@ public class Utils {
 
         out.println("# Time sorted log entries:");
 
+        int lastIndex = -1;
+
         for(LogEntry logEntry : logEntries) {
             /////////////////////////////////////////////////////////////////////////////
             // Depending on the source position, where in the line we display the payload
             String dts  =   logEntry.getDisplayTimeStamp();
             source      =   logEntry.getSource();
             int index   =   sources.indexOf(source);
-            String pad1 =   String.format("%d  %20s", index + 1, dts);
-            String pad2 =   String.format("%d  %20s", index + 1, "");
+            String sol  =   " ";
+
+            if(index != lastIndex) {
+                sol = ".";
+                lastIndex = index;
+            }
+
+            String pad1 =   String.format("%s%d %20s", sol, index + 1, dts);
+            String pad2 =   String.format("%s%d %20s", " ", index + 1, "");
 
             /////////////////////////////////////////////////////////////////
             // Extract each line from the payload and display it with padding
