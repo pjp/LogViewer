@@ -371,16 +371,11 @@ public class Utils {
         }
     }
 
-    static void usage(
-            final String propertyFileName,
-            final String timestampDateFormatPropName,
-            final String timestampDateFormat,
-            final String startAtPropName,
-            final String endAtPropName) {
+    static void usage() {
 
         System.err.println("View multiple log files in a single time ascending order list.");
         System.err.println("");
-        System.err.println("Usage: [@FILE] [@-] [=s=TS] [=e=TS] [=t=TS] logfile logfile ...");
+        System.err.println("Usage: [=s=TS] [=e=TS] [=t=TS] logfile logfile ...");
         System.err.println("");
         System.err.println("   @-      Do not load any properties file.");
         System.err.println("   @FILE   A properties file to load configuration values from.");
@@ -398,16 +393,6 @@ public class Utils {
         System.err.println("If =s= and =e= are set to an empty value, no filtering will be enabled for that value,");
         System.err.println("else they HAVE to match the TimeStamp format EXACTLY.");
         System.err.println("");
-        System.err.println("By default, property file [" + propertyFileName + "] in the current") ;
-        System.err.println("directory will be read if it exists. To prevent this, either explicitly");
-        System.err.println("specify an alternative file '@filename', else specify '@-' to prevent using a default.");
-        System.err.println("");
-        System.err.println("The property file can contain these keys, default values are used if");
-        System.err.println("the property is not specified, or no property file specified.");
-        System.err.println("");
-        System.err.println(String.format("Key: [%-35s], default is '%s'", timestampDateFormatPropName, timestampDateFormat));
-        System.err.println(String.format("Key: [%-35s], default is '%s'", startAtPropName, "empty or not set -> Earliest"));
-        System.err.println(String.format("Key: [%-35s], default is '%s'", endAtPropName, "empty or not set -> Latest"));
 
         System.exit(1);
     }
@@ -421,15 +406,11 @@ public class Utils {
      * @throws ParseException
      */
     public static void main(final String[] args) throws IOException, ParseException, FileNotFoundException {
-        String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS ";
+        String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
         String startAt                                  = null;
         String endAt                                    = null;
-        String propertyFileName                         = "logviewer.properties";
-        final String timestampDateFormatPropName        = "logentry.timestamp.date.format";
-        final String startAtPropName                    = "logentry.filter.start.date";
-        final String endAtPropName                      = "logentry.filter.end.date";
         final String NAME                               = "LogViewer";
-        final String VERSION                            = "1.0";
+        final String VERSION                            = "1.1";
 
         System.out.println(String.format("# %s - v%s", NAME, VERSION));
 
@@ -441,28 +422,16 @@ public class Utils {
         System.out.println();
 
         if(args.length < 1) {
-            usage(  propertyFileName,
-                    timestampDateFormatPropName,
-                    timestampDateFormat,
-                    startAtPropName,
-                    endAtPropName);
+            usage();
         }
 
         List<String>logFiles                = new ArrayList<>();
-        boolean usingDefaultPropertyFile    = true;
         String cmdLineStartAt               = null;
         String cmdLineEndAt                 = null;
         String cmdLineDateFormat            = null;
-        String cmdLinePropertyFileName      = null;
 
         for(String filename : args) {
-            if (filename.startsWith("@-")) {
-                usingDefaultPropertyFile = false;
-                cmdLinePropertyFileName = filename;
-            } else if (filename.startsWith("@")) {
-                cmdLinePropertyFileName = filename.substring(1);
-                usingDefaultPropertyFile = false;
-            } else if (filename.startsWith("=s=")) {
+            if (filename.startsWith("=s=")) {
                 cmdLineStartAt = filename.substring(3);
             } else if (filename.startsWith("=e=")) {
                 cmdLineEndAt = filename.substring(3);
@@ -474,36 +443,7 @@ public class Utils {
         }
 
         if(logFiles.size() < 1) {
-            usage(  propertyFileName,
-                    timestampDateFormatPropName,
-                    timestampDateFormat,
-                    startAtPropName,
-                    endAtPropName);
-        }
-
-        // Pain, need to do some dancing around for the property file name.
-        if(null != cmdLinePropertyFileName) {
-            if(cmdLinePropertyFileName.startsWith("@-")) {
-                propertyFileName = null;
-            } else {
-                propertyFileName = cmdLinePropertyFileName;
-            }
-        }
-
-        if(null != propertyFileName) {
-            try {
-                Properties props = new Properties();
-                props.load(new FileInputStream(propertyFileName));
-
-                timestampDateFormat     = props.getProperty(timestampDateFormatPropName, timestampDateFormat);
-                startAt                 = props.getProperty(startAtPropName, startAt);
-                endAt                   = props.getProperty(endAtPropName, endAt);
-                System.out.println("# Loaded property file [" + propertyFileName + "]");
-            } catch(IOException e) {
-                if(! usingDefaultPropertyFile) {
-                    throw e;
-                }
-            }
+            usage();
         }
 
         // Override any value from those on the command line
