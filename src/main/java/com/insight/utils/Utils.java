@@ -395,6 +395,46 @@ public class Utils {
         System.exit(1);
     }
 
+    /**
+     * Validate that start end timestamps are valid and in the right order
+     *
+     * @param timestampDateFormat
+     * @param startAt
+     * @param endAt
+     * @throws ParseException
+     */
+    protected static void validateFilterRanges (
+            final String timestampDateFormat,
+            final String startAt,
+            final String endAt) throws ParseException {
+
+        SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
+        long startTs                = -1;
+        long endTs                  = -1;
+
+        ///////////////////////////////
+        // Build any time range filters
+        if (null != startAt && startAt.trim().length() > 0) {
+            Date dS = sdf.parse(startAt);
+            startTs = dS.getTime();
+        }
+
+        if (null != endAt && endAt.trim().length() > 0) {
+            Date dS = sdf.parse(endAt);
+            endTs = dS.getTime();
+        }
+
+        /////////////////////////////////////////////
+        // Check if both start and end were specified
+        if(startTs > -1 && endTs > -1) {
+            if(startTs > endTs) {
+                throw new RuntimeException(
+                                "Start filter timestamp [" + startAt +
+                                "] > End filter timestamp [" + endAt+
+                                "]") ;
+            }
+        }
+    }
 
     /**
      * For usage from the command line
@@ -456,6 +496,8 @@ public class Utils {
         if(null != cmdLineDateFormat) {
             timestampDateFormat = cmdLineDateFormat;
         }
+
+        validateFilterRanges(timestampDateFormat, startAt, endAt);
 
         List<List<LogEntry>> logs   = new ArrayList<>();
         List<String> sources        = new ArrayList<>();
