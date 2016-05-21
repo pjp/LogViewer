@@ -372,8 +372,8 @@ public class Utils {
     }
 
     static void usage(final String timestampDateFormat) {
-
-        System.err.println("View multiple log files in a single time ascending order list.");
+        System.err.println("");
+        System.err.println("LogViewer: View multiple log files in a single time ascending order list.");
         System.err.println("");
         System.err.println("Usage: [=t=TS] [=s=TS] [=e=TS] logfile logfile ...");
         System.err.println("");
@@ -406,21 +406,47 @@ public class Utils {
     protected static void validateFilterRanges (
             final String timestampDateFormat,
             final String startAt,
-            final String endAt) throws ParseException {
+            final String endAt)  {
 
-        SimpleDateFormat sdf        = new SimpleDateFormat(timestampDateFormat);
         long startTs                = -1;
         long endTs                  = -1;
+        SimpleDateFormat sdf        = null;
+
+        try {
+            sdf = new SimpleDateFormat(timestampDateFormat);
+        } catch(Exception e) {
+            throw new RuntimeException("Problems with timestampDateFormat [" + timestampDateFormat + "]", e) ;
+        }
 
         ///////////////////////////////
         // Build any time range filters
         if (null != startAt && startAt.trim().length() > 0) {
-            Date dS = sdf.parse(startAt);
+            Date dS = null;
+            try {
+                dS = sdf.parse(startAt);
+            } catch (ParseException e) {
+                throw new RuntimeException(
+                        "Problems with startAt timestampDateFormat ["
+                                + startAt
+                                + "], it doesn't match ["
+                                + timestampDateFormat
+                                + "]");
+            }
             startTs = dS.getTime();
         }
 
         if (null != endAt && endAt.trim().length() > 0) {
-            Date dS = sdf.parse(endAt);
+            Date dS = null;
+            try {
+                dS = sdf.parse(endAt);
+            } catch (ParseException e) {
+                throw new RuntimeException(
+                        "Problems with endAt timestampDateFormat ["
+                                + endAt
+                                + "], it doesn't match ["
+                                + timestampDateFormat
+                                + "]");
+            }
             endTs = dS.getTime();
         }
 
@@ -429,8 +455,8 @@ public class Utils {
         if(startTs > -1 && endTs > -1) {
             if(startTs > endTs) {
                 throw new RuntimeException(
-                                "Start filter timestamp [" + startAt +
-                                "] > End filter timestamp [" + endAt+
+                                "Invalid range, start filter timestamp [" + startAt +
+                                "] > snd filter timestamp [" + endAt+
                                 "]") ;
             }
         }
@@ -443,7 +469,7 @@ public class Utils {
      * @throws IOException
      * @throws ParseException
      */
-    public static void main(final String[] args) throws IOException, ParseException, FileNotFoundException {
+    public static void main(final String[] args) throws FileNotFoundException, ParseException {
         String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
         String startAt                                  = null;
         String endAt                                    = null;
@@ -480,7 +506,18 @@ public class Utils {
             }
         }
 
-        if(logFiles.size() < 1) {
+        /////////////////////////////////////////////
+        // Check that specified files can be accessed
+        boolean allFilesFound = true;
+
+        for(String logFile : logFiles) {
+            if(! new File(logFile).exists()) {
+                System.err.println("File [" + logFile + "] cannot be accessed.");
+                allFilesFound = false;
+            }
+        }
+
+        if(!allFilesFound || logFiles.size() < 1) {
             usage(timestampDateFormat);
         }
 
