@@ -371,24 +371,22 @@ public class Utils {
         }
     }
 
-    static void usage() {
+    static void usage(final String timestampDateFormat) {
 
         System.err.println("View multiple log files in a single time ascending order list.");
         System.err.println("");
-        System.err.println("Usage: [=s=TS] [=e=TS] [=t=TS] logfile logfile ...");
+        System.err.println("Usage: [=t=TS] [=s=TS] [=e=TS] logfile logfile ...");
         System.err.println("");
-        System.err.println("   @-      Do not load any properties file.");
-        System.err.println("   @FILE   A properties file to load configuration values from.");
+        System.err.println("   =t=TS   Set the log entry TimeStamp formatter to TS (default is '" + timestampDateFormat + "')");
         System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
         System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
-        System.err.println("   =t=TS   Set the log entry TimeStamp formatter to TS");
         System.err.println("");
         System.err.println("Notes:");
         System.err.println("");
         System.err.println("The merged time ascending list is written to stdout.");
         System.err.println("");
-        System.err.println("Command line values override everything else, and HAVE to be in");
-        System.err.println("the same format as the default values.");
+        System.err.println("Command line values override everything else, and start/end timestamps (if specified)");
+        System.err.println("HAVE to be in the same format as the log entry formatter.");
         System.err.println("");
         System.err.println("If =s= and =e= are set to an empty value, no filtering will be enabled for that value,");
         System.err.println("else they HAVE to match the TimeStamp format EXACTLY.");
@@ -422,7 +420,7 @@ public class Utils {
         System.out.println();
 
         if(args.length < 1) {
-            usage();
+            usage(timestampDateFormat);
         }
 
         List<String>logFiles                = new ArrayList<>();
@@ -443,7 +441,7 @@ public class Utils {
         }
 
         if(logFiles.size() < 1) {
-            usage();
+            usage(timestampDateFormat);
         }
 
         // Override any value from those on the command line
