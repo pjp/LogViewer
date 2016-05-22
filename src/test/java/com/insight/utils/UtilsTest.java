@@ -162,9 +162,9 @@ public class UtilsTest
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
 
         List<String> sources = new ArrayList<>();
-        sources.add(Utils.getFileNameFromFullPath(file1));
-        sources.add(Utils.getFileNameFromFullPath(file2));
-        sources.add(Utils.getFileNameFromFullPath(file3));
+        sources.add(file1);
+        sources.add(file2);
+        sources.add(file3);
 
         PrintStream out = new PrintStream(new FileOutputStream(new File("result.log")));
 
@@ -188,8 +188,8 @@ public class UtilsTest
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
 
         List<String> sources = new ArrayList<>();
-        sources.add(Utils.getFileNameFromFullPath(file1));
-        sources.add(Utils.getFileNameFromFullPath(file2));
+        sources.add(file1);
+        sources.add(file2);
 
         PrintStream out = new PrintStream(new FileOutputStream(new File("result2.log")));
 
