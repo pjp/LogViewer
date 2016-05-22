@@ -23,7 +23,7 @@ Note that the start and end timestamps HAVE to match the defined timestamp forma
 ## Timestamp Adjustments
 
 If there is a difference between the clock on the computers that created the log files that are to be compared, LogViewer
-can add a timestamp adjustment for the 2nd files onwards (either positive or negative) e.g.
+can add a timestamp adjustment (either positive or negative) e.g.
 
 java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils 
     '=t=yyyy-MM-dd HH:mm:ss.SSS' 
@@ -32,8 +32,8 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     '=a=10,-2'
     server20160520.log server20160521.log server20160522.log
 
-This will add 10mS to every log entry's timestamp for the 2nd log file 'server20160521.log' and subtract 2ms from the
-3rd log log entry's timestamp file 'server20160522.log' before sorting all the log entries. Note that the log entry
+This will add 10mS to every log entry's timestamp for the 2nd log file 'server20160520.log' and subtract 2ms from the
+3rd log log entry's timestamp file 'server20160521.log' before sorting all the log entries. Note that the log entry
 timestamp written to the output will reflect this change, and, therefore be different to the actual log entry timestamp 
 from the source file.
 

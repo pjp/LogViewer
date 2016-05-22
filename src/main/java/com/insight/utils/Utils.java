@@ -236,7 +236,7 @@ public class Utils {
     /**
      * Build a representation of a set of log entries from a single file.
      *
-     * @param fileName The file containing log entries.
+     * @param logFilePath The file containing log entries.
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
      * @param startAt A String representation of the timestamp (matching the sdf) to start collecting log entries,
      *                null or empty implies no filtering
@@ -247,12 +247,12 @@ public class Utils {
      * @throws ParseException
      */
     public static List<LogEntry> createLogEntries(
-            final String fileName,
+            final String logFilePath,
             final String timestampDateFormat,
             final String startAt,
             final String endAt,
             final int timestampAdjustment) throws FileNotFoundException, ParseException {
-        File file = new File(fileName);
+        File file = new File(logFilePath);
         List<LogEntry> logEntries   = null;
         List<String> lines          = new ArrayList<String>();
 
@@ -263,7 +263,7 @@ public class Utils {
 
             logEntries =
                     createLogEntries(
-                            getFileNameFromFullPath(fileName),
+                            logFilePath,
                             lines,
                             timestampDateFormat,
                             startAt,
@@ -382,7 +382,7 @@ public class Utils {
         System.err.println("   =t=TS   Set the log entry TimeStamp formatter to TS (default is '" + timestampDateFormat + "')");
         System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
         System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
-        System.err.println("   =a=N,.. Set the mS timestamp offset adjustment for the 2nd log file entries onwards.");
+        System.err.println("   =a=N,.. Set the mS timestamp offset adjustment for the relevant log file's entries.");
         System.err.println("");
         System.err.println("Notes:");
         System.err.println("");
@@ -391,8 +391,8 @@ public class Utils {
         System.err.println("Command line values override everything else, and start/end timestamps (if specified)");
         System.err.println("HAVE to be in the same format as the log entry formatter.");
         System.err.println("");
-        System.err.println("If =s= and =e= are set to an empty value, no filtering will be enabled for that value,");
-        System.err.println("else they HAVE to match the TimeStamp format EXACTLY.");
+        System.err.println("If =s= and =e= are set to an empty value (or not specified), no filtering will be enabled for");
+        System.err.println("that value, else they HAVE to match the TimeStamp format EXACTLY.");
         System.err.println("");
 
         System.exit(1);
@@ -488,10 +488,6 @@ public class Utils {
                 }
             }
 
-            /////////////////////////////
-            // First one is the reference
-            tsAdjustments.add(0, 0);
-
             for(int i = 0 ; i < logFiles.size() ; i++) {
                 if(i < tsAdjustments.size()) {
                     adjustments.add(tsAdjustments.get(i));
@@ -538,17 +534,21 @@ public class Utils {
         String cmdLineDateFormat            = null;
         String cmdLineTimestampAdjustments  = null ;
 
-        for(String filename : args) {
-            if (filename.startsWith("=s=")) {
-                cmdLineStartAt = filename.substring(3);
-            } else if (filename.startsWith("=e=")) {
-                cmdLineEndAt = filename.substring(3);
-            } else if(filename.startsWith("=t=")) {
-                cmdLineDateFormat = filename.substring(3);
-            } else if(filename.startsWith("=a=")) {
-                cmdLineTimestampAdjustments = filename.substring(3);
+        for(String filePath : args) {
+            if (filePath.startsWith("=s=")) {
+                cmdLineStartAt = filePath.substring(3);
+            } else if (filePath.startsWith("=e=")) {
+                cmdLineEndAt = filePath.substring(3);
+            } else if(filePath.startsWith("=t=")) {
+                cmdLineDateFormat = filePath.substring(3);
+            } else if(filePath.startsWith("=a=")) {
+                cmdLineTimestampAdjustments = filePath.substring(3);
             } else {
-                logFiles.add(filename);
+                if(! logFiles.contains(filePath)) {
+                    logFiles.add(filePath);
+                } else {
+                    System.out.println("# Not processing duplicate file [" + filePath + "]");
+                }
             }
         }
 
@@ -591,7 +591,7 @@ public class Utils {
         List<Integer>adjustments    = timestampAdjustments(logFiles, timestampAdjustments);
 
         for(int i = 0 ; i < logFiles.size() ; i++) {
-            String logFile      = logFiles.get(i);
+            String logFilePath      = logFiles.get(i);
             int tsAdjustment    = 0 ;
 
             if(i < adjustments.size()) {
@@ -600,14 +600,14 @@ public class Utils {
 
             List<LogEntry> logEntries =
                     createLogEntries(
-                            logFile,
+                            logFilePath,
                             timestampDateFormat,
                             startAt,
                             endAt,
                             tsAdjustment);
 
             logs.add(logEntries);
-            sources.add(getFileNameFromFullPath(logFile));
+            sources.add(logFilePath);
         }
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);

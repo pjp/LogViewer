@@ -562,7 +562,7 @@ public class UtilsTest
         adjustments = Utils.timestampAdjustments(files, cmdLine);
         assertNotNull(adjustments);
         assertEquals(1, adjustments.size());
-        assertEquals(new Integer(0), adjustments.get(0));
+        assertEquals(new Integer(1), adjustments.get(0));
 
         ////////////////////////////////////////////////////////
         files.add("B");
@@ -570,8 +570,8 @@ public class UtilsTest
         adjustments = Utils.timestampAdjustments(files, cmdLine);
         assertNotNull(adjustments);
         assertEquals(2, adjustments.size());
-        assertEquals(new Integer(0), adjustments.get(0));
-        assertEquals(new Integer(1), adjustments.get(1));
+        assertEquals(new Integer(1), adjustments.get(0));
+        assertEquals(new Integer(0), adjustments.get(1));
 
         ////////////////////////////////////////////////////////
         files.add("C");
@@ -579,8 +579,8 @@ public class UtilsTest
         adjustments = Utils.timestampAdjustments(files, cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
-        assertEquals(new Integer(0), adjustments.get(0));
-        assertEquals(new Integer(1), adjustments.get(1));
+        assertEquals(new Integer(1), adjustments.get(0));
+        assertEquals(new Integer(0), adjustments.get(1));
         assertEquals(new Integer(0), adjustments.get(2));
 
         ////////////////////////////////////////////////////////
@@ -589,9 +589,9 @@ public class UtilsTest
         adjustments = Utils.timestampAdjustments(files, cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
-        assertEquals(new Integer(0), adjustments.get(0));
-        assertEquals(new Integer(1), adjustments.get(1));
-        assertEquals(new Integer(2), adjustments.get(2));
+        assertEquals(new Integer(1), adjustments.get(0));
+        assertEquals(new Integer(2), adjustments.get(1));
+        assertEquals(new Integer(0), adjustments.get(2));
 
         ////////////////////////////////////////////////////////
         cmdLine     = "1,-2,3";
@@ -599,9 +599,9 @@ public class UtilsTest
         adjustments = Utils.timestampAdjustments(files, cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
-        assertEquals(new Integer(0), adjustments.get(0));
-        assertEquals(new Integer(1), adjustments.get(1));
-        assertEquals(new Integer(-2), adjustments.get(2));
+        assertEquals(new Integer(1), adjustments.get(0));
+        assertEquals(new Integer(-2), adjustments.get(1));
+        assertEquals(new Integer(3), adjustments.get(2));
 
         ////////////////////////////////////////////////////////
         cmdLine     = ",-2,3";
@@ -609,9 +609,9 @@ public class UtilsTest
         adjustments = Utils.timestampAdjustments(files, cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
-        assertEquals(new Integer(0), adjustments.get(0));
-        assertEquals(new Integer(-2), adjustments.get(1));
-        assertEquals(new Integer(3), adjustments.get(2));
+        assertEquals(new Integer(-2), adjustments.get(0));
+        assertEquals(new Integer(3), adjustments.get(1));
+        assertEquals(new Integer(0), adjustments.get(2));
 
         ////////////////////////////////////////////////////////
         cmdLine     = "1,-Two,3";
