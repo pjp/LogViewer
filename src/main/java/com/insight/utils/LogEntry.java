@@ -28,7 +28,7 @@ public class LogEntry implements Comparable<LogEntry> {
 
     public int compareTo(LogEntry o) {
         if (rawTimeStamp == o.rawTimeStamp) {
-            return source.compareTo(o.source);
+            return 0;
         }
 
         if(rawTimeStamp < o.rawTimeStamp) {
