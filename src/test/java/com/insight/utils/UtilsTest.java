@@ -172,18 +172,23 @@ public class UtilsTest
 
     public void testLogFileCompareTwo() throws ParseException, FileNotFoundException {
         String file1                = "src/test/resources/jb-server.log";
-        String startAt              = "2016-05-18 17:45:57,849";
-        String endAt                = "2016-05-18 17:46:01,793";
+        String file2                = "src/test/resources/jb-error.log";
+        String startAt              = "2016-05-17 17:45:57,849";
+        String endAt                = "2016-05-19 18:46:01,793";
         List<LogEntry> logEntries   = null;
         List<List<LogEntry>> logs   = new ArrayList<>();
 
         logEntries = Utils.createLogEntries(file1, TS1_FORMAT, startAt, endAt);
         logs.add(logEntries);
 
+        logEntries = Utils.createLogEntries(file2, TS1_FORMAT, startAt, endAt);
+        logs.add(logEntries);
+
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
 
         List<String> sources = new ArrayList<>();
         sources.add(Utils.getFileNameFromFullPath(file1));
+        sources.add(Utils.getFileNameFromFullPath(file2));
 
         PrintStream out = new PrintStream(new FileOutputStream(new File("result2.log")));
 
