@@ -23,12 +23,17 @@ public class LogEntry implements Comparable<LogEntry> {
 
     @Override
     public String toString() {
-        return String.format("%d %s %s", rawTimeStamp, displayTimeStamp, payload);
+        return String.format("%s %d %s %s", source, rawTimeStamp, displayTimeStamp, payload);
     }
 
     public int compareTo(LogEntry o) {
-        if (rawTimeStamp == o.rawTimeStamp) { return 0; }
-        if(rawTimeStamp < o.rawTimeStamp) { return -1; }
+        if (rawTimeStamp == o.rawTimeStamp) {
+            return source.compareTo(o.source);
+        }
+
+        if(rawTimeStamp < o.rawTimeStamp) {
+            return -1;
+        }
 
         return 1;
     }
