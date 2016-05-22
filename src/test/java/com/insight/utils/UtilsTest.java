@@ -604,6 +604,16 @@ public class UtilsTest
         assertEquals(new Integer(-2), adjustments.get(2));
 
         ////////////////////////////////////////////////////////
+        cmdLine     = ",-2,3";
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(3, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+        assertEquals(new Integer(-2), adjustments.get(1));
+        assertEquals(new Integer(3), adjustments.get(2));
+
+        ////////////////////////////////////////////////////////
         cmdLine     = "1,-Two,3";
 
         try {
