@@ -48,7 +48,7 @@ public class Utils {
         // Extract the display timestamp
         int patternLength   = sdf.toPattern().length();
 
-        displayTimeStamp    = data.substring(0, patternLength);
+        displayTimeStamp    = sdf.format(new Date(rawTimeStamp));
         payload             = data.substring(patternLength);
 
         ///////////////////////////////
@@ -82,9 +82,10 @@ public class Utils {
     protected static List<LogEntry> createLogEntries(
             final String source,
             final List<String> lines,
-            final String timestampDateFormat) throws ParseException {
+            final String timestampDateFormat,
+            final int timestampAdjustment) throws ParseException {
 
-        return createLogEntries(source, lines, timestampDateFormat, null, null);
+        return createLogEntries(source, lines, timestampDateFormat, null, null, timestampAdjustment);
     }
 
     /**
@@ -136,7 +137,8 @@ public class Utils {
             final List<String> lines,
             final String timestampDateFormat,
             final String startAt,
-            final String endAt) throws ParseException {
+            final String endAt,
+            final int timestampAdjustment) throws ParseException {
         List<LogEntry> logEntries   = new ArrayList<LogEntry>();
         StringBuilder currentEntry  = new StringBuilder();
         boolean atStart             = true;
@@ -204,7 +206,7 @@ public class Utils {
                         source,
                         currentEntry.toString(),
                         sdf,
-                        ts,
+                        ts + timestampAdjustment,
                         startAt,
                         endAt);
 
@@ -248,7 +250,8 @@ public class Utils {
             final String fileName,
             final String timestampDateFormat,
             final String startAt,
-            final String endAt) throws FileNotFoundException, ParseException {
+            final String endAt,
+            final int timestampAdjustment) throws FileNotFoundException, ParseException {
         File file = new File(fileName);
         List<LogEntry> logEntries   = null;
         List<String> lines          = new ArrayList<String>();
@@ -264,7 +267,8 @@ public class Utils {
                             lines,
                             timestampDateFormat,
                             startAt,
-                            endAt);
+                            endAt,
+                            timestampAdjustment);
         }
 
         return logEntries;
@@ -373,11 +377,12 @@ public class Utils {
         System.err.println("");
         System.err.println("LogViewer: View multiple log files in a single time ascending order list.");
         System.err.println("");
-        System.err.println("Usage: [=t=TS] [=s=TS] [=e=TS] logfile logfile ...");
+        System.err.println("Usage: [=t=TS] [=s=TS] [=e=TS] [=a=N,N...] logfile logfile ...");
         System.err.println("");
         System.err.println("   =t=TS   Set the log entry TimeStamp formatter to TS (default is '" + timestampDateFormat + "')");
         System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
         System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
+        System.err.println("   =a=N,.. Set the mS timestamp offset adjustment for the 2nd log file entries onwards.");
         System.err.println("");
         System.err.println("Notes:");
         System.err.println("");
@@ -461,6 +466,45 @@ public class Utils {
     }
 
     /**
+     *
+     * @param logFiles
+     * @param timestampAdjustments
+     * @return
+     */
+    protected static List<Integer> timestampAdjustments(List<String> logFiles, String timestampAdjustments) {
+        List<Integer> adjustments   = new ArrayList<>();
+        List<Integer> tsAdjustments = new ArrayList<>();
+
+        if(null != logFiles && logFiles.size() > 0) {
+            if(null != timestampAdjustments && timestampAdjustments.trim().length() > 0) {
+                StringTokenizer st = new StringTokenizer(timestampAdjustments, ",");
+
+                try {
+                    while (st.hasMoreTokens()) {
+                        tsAdjustments.add(new Integer(st.nextToken()));
+                    }
+                } catch(NumberFormatException e) {
+                    throw new RuntimeException("Invalid timestampAdjustments [" + timestampAdjustments + "]", e);
+                }
+            }
+
+            /////////////////////////////
+            // First one is the reference
+            tsAdjustments.add(0, 0);
+
+            for(int i = 0 ; i < logFiles.size() ; i++) {
+                if(i < tsAdjustments.size()) {
+                    adjustments.add(tsAdjustments.get(i));
+                } else {
+                    adjustments.add(0);
+                }
+            }
+        }
+
+        return adjustments;
+    }
+
+    /**
      * For usage from the command line
      *
      * @param args
@@ -471,6 +515,7 @@ public class Utils {
         String timestampDateFormat                      = "yyyy-MM-dd HH:mm:ss,SSS";
         String startAt                                  = null;
         String endAt                                    = null;
+        String timestampAdjustments                     = null;
         final String NAME                               = "LogViewer";
         final String VERSION                            = "1.1";
 
@@ -491,6 +536,7 @@ public class Utils {
         String cmdLineStartAt               = null;
         String cmdLineEndAt                 = null;
         String cmdLineDateFormat            = null;
+        String cmdLineTimestampAdjustments  = null ;
 
         for(String filename : args) {
             if (filename.startsWith("=s=")) {
@@ -499,6 +545,8 @@ public class Utils {
                 cmdLineEndAt = filename.substring(3);
             } else if(filename.startsWith("=t=")) {
                 cmdLineDateFormat = filename.substring(3);
+            } else if(filename.startsWith("=a=")) {
+                cmdLineTimestampAdjustments = filename.substring(3);
             } else {
                 logFiles.add(filename);
             }
@@ -532,18 +580,31 @@ public class Utils {
             timestampDateFormat = cmdLineDateFormat;
         }
 
+        if(null != cmdLineTimestampAdjustments) {
+            timestampAdjustments = cmdLineTimestampAdjustments;
+        }
+
         validateFilterRanges(timestampDateFormat, startAt, endAt);
 
         List<List<LogEntry>> logs   = new ArrayList<>();
         List<String> sources        = new ArrayList<>();
+        List<Integer>adjustments    = timestampAdjustments(logFiles, timestampAdjustments);
 
-        for(String logFile : logFiles) {
+        for(int i = 0 ; i < logFiles.size() ; i++) {
+            String logFile      = logFiles.get(i);
+            int tsAdjustment    = 0 ;
+
+            if(i < adjustments.size()) {
+                tsAdjustment = adjustments.get(i);
+            }
+
             List<LogEntry> logEntries =
                     createLogEntries(
                             logFile,
                             timestampDateFormat,
                             startAt,
-                            endAt);
+                            endAt,
+                            tsAdjustment);
 
             logs.add(logEntries);
             sources.add(getFileNameFromFullPath(logFile));
@@ -553,4 +614,5 @@ public class Utils {
 
         Utils.displayList(timeSortedLogEntries, sources, "");
     }
+
 }

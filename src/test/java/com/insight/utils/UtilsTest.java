@@ -53,11 +53,12 @@ public class UtilsTest
     String SOURCE                       = "inline1";
     String SOURCE2                      = "inline2";
     String SOURCE3                      = "inline3";
-
+    int tsAdjustment                    = 0;
+    
     public void testCreateEmptyLogEntriesList() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -68,7 +69,7 @@ public class UtilsTest
         List<LogEntry> logEntries   = null;
 
         lines.add(TS1_WITH_SENTINALS + " WooHoo");
-        logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(1, logEntries.size());
@@ -78,7 +79,7 @@ public class UtilsTest
         List<String> lines          = new ArrayList<String>() ;
 
         lines.add(" WooHoo");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -89,7 +90,7 @@ public class UtilsTest
 
         lines.add(" WooHoo1");
         lines.add(" WooHoo2");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(0, logEntries.size());
@@ -102,7 +103,7 @@ public class UtilsTest
         lines.add(" WooHoo2");
         lines.add(TS1_WITH_SENTINALS + " WooHoo");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(1, logEntries.size());
@@ -113,7 +114,7 @@ public class UtilsTest
 
         lines.add(TS1_WITH_SENTINALS + " WooHoo 1");
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2");
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -127,7 +128,7 @@ public class UtilsTest
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2");
         lines.add("WooHoo 2a");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -149,13 +150,13 @@ public class UtilsTest
         List<LogEntry> logEntries   = null;
         List<List<LogEntry>> logs   = new ArrayList<>();
 
-        logEntries = Utils.createLogEntries(file1, TS1_FORMAT_WITH_SENTINALS, startAt, endAt);
+        logEntries = Utils.createLogEntries(file1, TS1_FORMAT_WITH_SENTINALS, startAt, endAt, tsAdjustment);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file2, TS1_FORMAT_WITH_SENTINALS, startAt, endAt);
+        logEntries = Utils.createLogEntries(file2, TS1_FORMAT_WITH_SENTINALS, startAt, endAt, tsAdjustment);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file3, TS1_FORMAT_WITH_SENTINALS, startAt, endAt);
+        logEntries = Utils.createLogEntries(file3, TS1_FORMAT_WITH_SENTINALS, startAt, endAt, tsAdjustment);
         logs.add(logEntries);
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
@@ -178,10 +179,10 @@ public class UtilsTest
         List<LogEntry> logEntries   = null;
         List<List<LogEntry>> logs   = new ArrayList<>();
 
-        logEntries = Utils.createLogEntries(file1, TS1_FORMAT, startAt, endAt);
+        logEntries = Utils.createLogEntries(file1, TS1_FORMAT, startAt, endAt, tsAdjustment);
         logs.add(logEntries);
 
-        logEntries = Utils.createLogEntries(file2, TS1_FORMAT, startAt, endAt);
+        logEntries = Utils.createLogEntries(file2, TS1_FORMAT, startAt, endAt, tsAdjustment);
         logs.add(logEntries);
 
         List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
@@ -206,7 +207,7 @@ public class UtilsTest
 
         List<List<LogEntry>> logs = new ArrayList<>();
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
         logs.add(logEntries);
 
         assertNotNull(logEntries);
@@ -252,7 +253,7 @@ public class UtilsTest
                         lines,
                         TS1_FORMAT_WITH_SENTINALS,
                         startAt,
-                        endAt);
+                        endAt, tsAdjustment);
 
         assertEquals(3, logEntries.size());
         assertEquals(" WooHoo 2" + Utils.LINE_SEP, logEntries.get(0).getPayload());
@@ -269,7 +270,7 @@ public class UtilsTest
                         lines,
                         TS1_FORMAT_WITH_SENTINALS,
                         startAt,
-                        endAt);
+                        endAt, tsAdjustment);
 
         assertEquals(2, logEntries.size());
         assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
@@ -285,7 +286,7 @@ public class UtilsTest
                         lines,
                         TS1_FORMAT_WITH_SENTINALS,
                         startAt,
-                        endAt);
+                        endAt, tsAdjustment);
 
         assertEquals(1, logEntries.size());
         assertEquals(" WooHoo 3" + Utils.LINE_SEP, logEntries.get(0).getPayload());
@@ -300,7 +301,7 @@ public class UtilsTest
                         lines,
                         TS1_FORMAT_WITH_SENTINALS,
                         startAt,
-                        endAt);
+                        endAt, tsAdjustment);
 
         assertEquals(0, logEntries.size());
 
@@ -314,7 +315,7 @@ public class UtilsTest
                         lines,
                         TS1_FORMAT_WITH_SENTINALS,
                         startAt,
-                        endAt);
+                        endAt, tsAdjustment);
 
         assertEquals(0, logEntries.size());
     }
@@ -340,13 +341,13 @@ public class UtilsTest
         linesThird.add("WooHoo 3b1");
 
         List<LogEntry> logEntriesFirst =
-                Utils.createLogEntries(SOURCE, linesFirst, TS1_WITH_SENTINALS);
+                Utils.createLogEntries(SOURCE, linesFirst, TS1_WITH_SENTINALS, tsAdjustment);
 
         List<LogEntry> logEntriesSecond =
-                Utils.createLogEntries(SOURCE2, linesSecond, TS1_WITH_SENTINALS);
+                Utils.createLogEntries(SOURCE2, linesSecond, TS1_WITH_SENTINALS, tsAdjustment);
 
         List<LogEntry> logEntriesThird =
-                Utils.createLogEntries(SOURCE3, linesThird, TS1_WITH_SENTINALS);
+                Utils.createLogEntries(SOURCE3, linesThird, TS1_WITH_SENTINALS, tsAdjustment);
 
         ///////////////////////
         // Order doesn't matter
@@ -372,7 +373,7 @@ public class UtilsTest
 
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2a");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -386,7 +387,7 @@ public class UtilsTest
         lines.add(TS1_WITH_SENTINALS + " WooHoo 2a");
         lines.add("WooHoo 2b");
 
-        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS);
+        List<LogEntry> logEntries = Utils.createLogEntries(SOURCE, lines, TS1_FORMAT_WITH_SENTINALS, tsAdjustment);
 
         assertNotNull(logEntries);
         assertEquals(2, logEntries.size());
@@ -521,5 +522,94 @@ public class UtilsTest
         line = TS1 + " ]";
         mS = Utils.mSecTimeStampFromStartOfLine(line, sdf);
         assertTrue(mS > 0);
+    }
+    
+    public void testTimestampAdjustments() {
+        List<String> files          = null;
+        String cmdLine              = null ;
+        List<Integer> adjustments   = null ;
+
+        ////////////////////////////////////////////////////////
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(0, adjustments.size());
+
+        ////////////////////////////////////////////////////////
+        files          = new ArrayList<>();
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(0, adjustments.size());
+
+        ////////////////////////////////////////////////////////
+        cmdLine     = "";
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(0, adjustments.size());
+
+        ////////////////////////////////////////////////////////
+        files.add("A");
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(1, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+
+        ////////////////////////////////////////////////////////
+        cmdLine     = "1";
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(1, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+
+        ////////////////////////////////////////////////////////
+        files.add("B");
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(2, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+        assertEquals(new Integer(1), adjustments.get(1));
+
+        ////////////////////////////////////////////////////////
+        files.add("C");
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(3, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+        assertEquals(new Integer(1), adjustments.get(1));
+        assertEquals(new Integer(0), adjustments.get(2));
+
+        ////////////////////////////////////////////////////////
+        cmdLine     = "1,2";
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(3, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+        assertEquals(new Integer(1), adjustments.get(1));
+        assertEquals(new Integer(2), adjustments.get(2));
+
+        ////////////////////////////////////////////////////////
+        cmdLine     = "1,-2,3";
+
+        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        assertNotNull(adjustments);
+        assertEquals(3, adjustments.size());
+        assertEquals(new Integer(0), adjustments.get(0));
+        assertEquals(new Integer(1), adjustments.get(1));
+        assertEquals(new Integer(-2), adjustments.get(2));
+
+        ////////////////////////////////////////////////////////
+        cmdLine     = "1,-Two,3";
+
+        try {
+            adjustments = Utils.timestampAdjustments(files, cmdLine);
+            fail("Should have thrown an exception");
+        } catch(RuntimeException e) {}
+
     }
 }
