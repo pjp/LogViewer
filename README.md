@@ -33,10 +33,12 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     server20160520.log server20160521.log server20160522.log
 
 This will add 10mS to every log entry's timestamp for the 2nd log file 'server20160521.log' and subtract 2ms from the
-3rd log log entry's timestamp file 'server20160522.log' before sorting all the log entries.
+3rd log log entry's timestamp file 'server20160522.log' before sorting all the log entries. Note that the log entry
+timestamp written to the output will reflect this change, and, therefore be different to the actual log entry timestamp 
+from the source file.
 
 ## Output
 
 Each log entry line of the output is preceeded by a number indicating which file produced that line, there is a list at
-the beginning of the output mapping filename to this number. If a number is preceeded with a period, it indicates that the
+the beginning of the output, mapping a filename to this number. If a number is preceeded with a period, it indicates that the
 line is from a different file to the previous line.
