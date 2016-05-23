@@ -12,6 +12,8 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     
 ## Filtering
 
+### Time Range
+
 Start and end timestamps can be specified to cut down the time range needed, e.g.
 
 java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils 
@@ -21,6 +23,8 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     server20160520.log server20160521.log
 
 Note that the start and end timestamps HAVE to match the defined timestamp format.
+
+### Text 
 
 Text can be used for filtering as well e.g. 
 
@@ -43,13 +47,13 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     '=t=yyyy-MM-dd HH:mm:ss.SSS' 
     '=s=2016-05-20 22:00:00.000' 
     '=e=2016-05-21 02:00:00.000' 
-    '=a=10,-2'
+    '=a=10,0,-2'
     server20160520.log server20160521.log server20160522.log
 
-This will add 10mS to every log entry's timestamp for the 2nd log file 'server20160520.log' and subtract 2ms from the
-3rd log log entry's timestamp file 'server20160521.log' before sorting all the log entries. Note that the log entry
-timestamp written to the output will reflect this change, and, therefore be different to the actual log entry timestamp 
-from the source file.
+This will add 10mS to every log entry's timestamp for the 1st log file 'server20160520.log', no adjustment for the 
+2nd log file 'server20160521.log' and subtract 2ms from the 3rd log entry's timestamp in file 'server20160522.log' 
+before sorting all the log entries. Note that the log entry timestamp written to the output will reflect this change, 
+and therefore be different to the actual log entry timestamp from the source file.
 
 ## Output
 
