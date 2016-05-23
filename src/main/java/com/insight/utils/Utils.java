@@ -347,7 +347,7 @@ public class Utils {
 
         int i = 1;
         for(String theSource : sources) {
-            out.println("# " + i + " " + theSource);
+            out.println(String.format("# %2d %s", i, theSource));
             i++;
         }
         out.println("#");
