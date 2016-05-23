@@ -54,7 +54,7 @@ public class UtilsTest
     String SOURCE2                      = "inline2";
     String SOURCE3                      = "inline3";
     int tsAdjustment                    = 0;
-    String searchText                   = null;
+    List<String> searchText             = new ArrayList<>();
     
     public void testCreateEmptyLogEntriesList() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
@@ -264,7 +264,7 @@ public class UtilsTest
         ///////////////////////////////////
         startAt              = TS1_WITH_SENTINALS;
         endAt                = TS5_WITH_SENTINALS;
-        searchText          = "WooHoo 3a";
+        searchText.add("WooHoo 3a");
 
         logEntries =
                 Utils.createLogEntries(
@@ -280,7 +280,7 @@ public class UtilsTest
         ///////////////////////////////////
         startAt              = TS3_WITH_SENTINALS;
         endAt                = TS5_WITH_SENTINALS;
-        searchText           = null ;
+        searchText.clear();
 
         logEntries =
                 Utils.createLogEntries(
