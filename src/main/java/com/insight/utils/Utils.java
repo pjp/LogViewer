@@ -37,7 +37,8 @@ public class Utils {
             final SimpleDateFormat sdf,
             final long rawTimeStamp,
             final String startAt,
-            final String endAt) throws ParseException {
+            final String endAt,
+            final String searchText) throws ParseException {
         String displayTimeStamp = "0";
         String payload = null;
         LogEntry logEntry = null;
@@ -64,7 +65,13 @@ public class Utils {
         }
 
         if (rawTimeStamp >= startTs && rawTimeStamp <= endTs) {
-            logEntry = new LogEntry(source, rawTimeStamp, displayTimeStamp, payload);
+            if(null != searchText && searchText.length() > 0) {
+                if(payload.contains(searchText))  {
+                    logEntry = new LogEntry(source, rawTimeStamp, displayTimeStamp, payload);
+                }
+            } else {
+                logEntry = new LogEntry(source, rawTimeStamp, displayTimeStamp, payload);
+            }
         }
 
         return logEntry;
@@ -83,9 +90,10 @@ public class Utils {
             final String source,
             final List<String> lines,
             final String timestampDateFormat,
+            final String searchText,
             final int timestampAdjustment) throws ParseException {
 
-        return createLogEntries(source, lines, timestampDateFormat, null, null, timestampAdjustment);
+        return createLogEntries(source, lines, timestampDateFormat, null, null, searchText, timestampAdjustment);
     }
 
     /**
@@ -138,6 +146,7 @@ public class Utils {
             final String timestampDateFormat,
             final String startAt,
             final String endAt,
+            final String searchText,
             final int timestampAdjustment) throws ParseException {
         List<LogEntry> logEntries   = new ArrayList<LogEntry>();
         StringBuilder currentEntry  = new StringBuilder();
@@ -208,7 +217,8 @@ public class Utils {
                         sdf,
                         ts + timestampAdjustment,
                         startAt,
-                        endAt);
+                        endAt,
+                        searchText);
 
                 if(null != logEntry) {
                     //////////////////////////////////////
@@ -251,6 +261,7 @@ public class Utils {
             final String timestampDateFormat,
             final String startAt,
             final String endAt,
+            final String searchText,
             final int timestampAdjustment) throws FileNotFoundException, ParseException {
         File file = new File(logFilePath);
         List<LogEntry> logEntries   = null;
@@ -268,6 +279,7 @@ public class Utils {
                             timestampDateFormat,
                             startAt,
                             endAt,
+                            searchText,
                             timestampAdjustment);
         }
 
@@ -354,8 +366,8 @@ public class Utils {
                 lastIndex = index;
             }
 
-            String pad1 =   String.format("%s%d %20s", sol, index + 1, dts);
-            String pad2 =   String.format("%s%d %20s", " ", index + 1, "");
+            String pad1 =   String.format("%s%2d %20s", sol, index + 1, dts);
+            String pad2 =   String.format("%s%2d %20s", " ", index + 1, "");
 
             /////////////////////////////////////////////////////////////////
             // Extract each line from the payload and display it with padding
@@ -377,11 +389,12 @@ public class Utils {
         System.err.println("");
         System.err.println("LogViewer: View multiple log files in a single time ascending order list.");
         System.err.println("");
-        System.err.println("Usage: [=t=TS] [=s=TS] [=e=TS] [=a=N,N...] logfile logfile ...");
+        System.err.println("Usage: [=t=TS] [=s=TS] [=e=TS] [=f=T] [=a=N,N...] logfile logfile ...");
         System.err.println("");
         System.err.println("   =t=TS   Set the log entry TimeStamp formatter to TS (default is '" + timestampDateFormat + "')");
         System.err.println("   =s=TS   Set the starting TimeStamp (TS) for filtering log entries.");
         System.err.println("   =e=TS   Set the ending TimeStamp (TS) for filtering log entries.");
+        System.err.println("   =f=T    Set the text to find (case sensitive) for filtering log entries.");
         System.err.println("   =a=N,.. Set the mS timestamp offset adjustment for the relevant log file's entries.");
         System.err.println("");
         System.err.println("Notes:");
@@ -512,6 +525,7 @@ public class Utils {
         String startAt                                  = null;
         String endAt                                    = null;
         String timestampAdjustments                     = null;
+        String searchText                               = null;
         final String NAME                               = "LogViewer";
         final String VERSION                            = "1.1";
 
@@ -533,6 +547,7 @@ public class Utils {
         String cmdLineEndAt                 = null;
         String cmdLineDateFormat            = null;
         String cmdLineTimestampAdjustments  = null ;
+        String cmdLineSearchText            = null ;
 
         for(String filePath : args) {
             if (filePath.startsWith("=s=")) {
@@ -543,6 +558,8 @@ public class Utils {
                 cmdLineDateFormat = filePath.substring(3);
             } else if(filePath.startsWith("=a=")) {
                 cmdLineTimestampAdjustments = filePath.substring(3);
+            } else if(filePath.startsWith("=f=")) {
+                cmdLineSearchText = filePath.substring(3);
             } else {
                 if(! logFiles.contains(filePath)) {
                     logFiles.add(filePath);
@@ -584,6 +601,10 @@ public class Utils {
             timestampAdjustments = cmdLineTimestampAdjustments;
         }
 
+        if(null != cmdLineSearchText && cmdLineSearchText.length() > 0) {
+            searchText = cmdLineSearchText;
+        }
+
         validateFilterRanges(timestampDateFormat, startAt, endAt);
 
         List<List<LogEntry>> logs   = new ArrayList<>();
@@ -604,6 +625,7 @@ public class Utils {
                             timestampDateFormat,
                             startAt,
                             endAt,
+                            searchText,
                             tsAdjustment);
 
             logs.add(logEntries);
