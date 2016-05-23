@@ -548,28 +548,28 @@ public class UtilsTest
         List<Integer> adjustments   = null ;
 
         ////////////////////////////////////////////////////////
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(0, cmdLine);
         assertNotNull(adjustments);
         assertEquals(0, adjustments.size());
 
         ////////////////////////////////////////////////////////
         files          = new ArrayList<>();
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(0, adjustments.size());
 
         ////////////////////////////////////////////////////////
         cmdLine     = "";
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(0, adjustments.size());
 
         ////////////////////////////////////////////////////////
         files.add("A");
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(1, adjustments.size());
         assertEquals(new Integer(0), adjustments.get(0));
@@ -577,7 +577,7 @@ public class UtilsTest
         ////////////////////////////////////////////////////////
         cmdLine     = "1";
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(1, adjustments.size());
         assertEquals(new Integer(1), adjustments.get(0));
@@ -585,7 +585,7 @@ public class UtilsTest
         ////////////////////////////////////////////////////////
         files.add("B");
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(2, adjustments.size());
         assertEquals(new Integer(1), adjustments.get(0));
@@ -594,7 +594,7 @@ public class UtilsTest
         ////////////////////////////////////////////////////////
         files.add("C");
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
         assertEquals(new Integer(1), adjustments.get(0));
@@ -604,7 +604,7 @@ public class UtilsTest
         ////////////////////////////////////////////////////////
         cmdLine     = "1,2";
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
         assertEquals(new Integer(1), adjustments.get(0));
@@ -614,7 +614,7 @@ public class UtilsTest
         ////////////////////////////////////////////////////////
         cmdLine     = "1,-2,3";
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
         assertEquals(new Integer(1), adjustments.get(0));
@@ -624,7 +624,7 @@ public class UtilsTest
         ////////////////////////////////////////////////////////
         cmdLine     = ",-2,3";
 
-        adjustments = Utils.timestampAdjustments(files, cmdLine);
+        adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
         assertNotNull(adjustments);
         assertEquals(3, adjustments.size());
         assertEquals(new Integer(-2), adjustments.get(0));
@@ -635,7 +635,7 @@ public class UtilsTest
         cmdLine     = "1,-Two,3";
 
         try {
-            adjustments = Utils.timestampAdjustments(files, cmdLine);
+            adjustments = Utils.timestampAdjustments(files.size(), cmdLine);
             fail("Should have thrown an exception");
         } catch(RuntimeException e) {}
 

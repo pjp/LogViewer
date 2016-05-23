@@ -28,6 +28,8 @@ public class Utils {
      *                null or empty implies no filtering
      * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
      *              null or empty implies no filtering.
+     * @param searchText A list of text string to match a lig entry against.
+     *
      * @return
      * @throws ParseException
      */
@@ -86,6 +88,9 @@ public class Utils {
      * @param source The source of the log data
      * @param lines The lines of data that make up a log entry
      * @param timestampDateFormat A Simple date formatter String for the log entry's timestamp
+     * @param searchText A list of text string to match a lig entry against.
+     * @param timestampAdjustment A mS adjustment to the log entries timestamp.
+     *
      * @return
      * @throws ParseException
      */
@@ -140,6 +145,9 @@ public class Utils {
      *                null or empty implies no filtering
      * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
      *              null or empty implies no filtering.
+     * @param searchText A list of text string to match a lig entry against.
+     * @param timestampAdjustment A mS adjustment to the log entries timestamp.
+     *
      * @return
      * @throws ParseException
      */
@@ -235,18 +243,6 @@ public class Utils {
     }
 
     /**
-     * Extract the filename from a path.
-     *
-     * @param path The full path to a file.
-     * @return
-     */
-    public static String getFileNameFromFullPath(final String path) {
-        File file = new File(path);
-
-        return file.getName();
-    }
-
-    /**
      * Build a representation of a set of log entries from a single file.
      *
      * @param logFilePath The file containing log entries.
@@ -255,6 +251,9 @@ public class Utils {
      *                null or empty implies no filtering
      * @param endAt A String representation of the timestamp (matching the sdf) to stop collecting log entries,
      *              null or empty implies no filtering.
+     * @param searchText A list of text string to match a lig entry against.
+     * @param timestampAdjustment A mS adjustment to the log entries timestamp.
+     *
      * @return
      * @throws FileNotFoundException
      * @throws ParseException
@@ -482,16 +481,18 @@ public class Utils {
     }
 
     /**
+     * Build an Integer list of ms offsets for the log files speciffied on the command line.
      *
-     * @param logFiles
-     * @param timestampAdjustments
-     * @return
+     * @param logfileCount How many log files were specified on the command line
+     * @param timestampAdjustments The comma separated list of mS adjustments for each files specified.
+     *
+     * @return An Integer list representation of the command line parameter.
      */
-    protected static List<Integer> timestampAdjustments(List<String> logFiles, String timestampAdjustments) {
+    protected static List<Integer> timestampAdjustments(final int logfileCount, String timestampAdjustments) {
         List<Integer> adjustments   = new ArrayList<>();
         List<Integer> tsAdjustments = new ArrayList<>();
 
-        if(null != logFiles && logFiles.size() > 0) {
+        if(logfileCount > 0) {
             if(null != timestampAdjustments && timestampAdjustments.trim().length() > 0) {
                 StringTokenizer st = new StringTokenizer(timestampAdjustments, ",");
 
@@ -504,7 +505,7 @@ public class Utils {
                 }
             }
 
-            for(int i = 0 ; i < logFiles.size() ; i++) {
+            for(int i = 0 ; i < logfileCount ; i++) {
                 if(i < tsAdjustments.size()) {
                     adjustments.add(tsAdjustments.get(i));
                 } else {
@@ -607,7 +608,7 @@ public class Utils {
 
         List<List<LogEntry>> logs   = new ArrayList<>();
         List<String> sources        = new ArrayList<>();
-        List<Integer>adjustments    = timestampAdjustments(logFiles, timestampAdjustments);
+        List<Integer>adjustments    = timestampAdjustments(logFiles.size(), timestampAdjustments);
 
         for(int i = 0 ; i < logFiles.size() ; i++) {
             String logFilePath      = logFiles.get(i);
@@ -634,5 +635,4 @@ public class Utils {
 
         Utils.displayList(timeSortedLogEntries, sources, "");
     }
-
 }
