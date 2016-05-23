@@ -9,8 +9,10 @@ The default is 'yyyy-MM-dd HH:mm:ss,SSS', this can be changed as per the example
 java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils 
     '=t=[yyyy/MM/dd HH:mm:ss.SSS]' 
     server20160520.log server20160521.log
+    
+## Filtering
 
-Also, start and end timestamps can be specified to cut down the time range needed, e.g.
+Start and end timestamps can be specified to cut down the time range needed, e.g.
 
 java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils 
     '=t=yyyy-MM-dd HH:mm:ss.SSS' 
@@ -19,6 +21,18 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     server20160520.log server20160521.log
 
 Note that the start and end timestamps HAVE to match the defined timestamp format.
+
+Text can be used for filtering as well e.g. 
+
+java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils 
+    '=t=yyyy-MM-dd HH:mm:ss.SSS' 
+    '=s=2016-05-20 22:00:00.000' 
+    '=e=2016-05-21 02:00:00.000'
+    '=f= ERROR' '=f= WARN '
+    server20160520.log server20160521.log
+    
+Here two text filters are specified (read as ERROR or WARN must appear within the log record
+
 
 ## Timestamp Adjustments
 
