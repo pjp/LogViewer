@@ -353,23 +353,40 @@ public class Utils {
 
         out.println("# Time sorted log entries:");
 
-        int lastIndex = -1;
+        int lastIndex   = -1;
+        long lastTs     = -1;
 
         for(LogEntry logEntry : logEntries) {
             /////////////////////////////////////////////////////////////////////////////
             // Depending on the source position, where in the line we display the payload
             String dts  =   logEntry.getDisplayTimeStamp();
             source      =   logEntry.getSource();
+            long rawTs  =   logEntry.getRawTimeStamp();
             int index   =   sources.indexOf(source);
-            String sol  =   " ";
+            long diffTs =   -1;
+            String pad1 =   "";
+            String pad2 =   "";
 
-            if(index != lastIndex) {
-                sol = ".";
-                lastIndex = index;
+            if(-1 == lastTs) {
+                diffTs = 0;
+            } else {
+                diffTs  = rawTs - lastTs;
             }
+            lastTs = rawTs;
 
-            String pad1 =   String.format("%s%2d %20s", sol, index + 1, dts);
-            String pad2 =   String.format("%s%2d %20s", " ", index + 1, "");
+            pad1 = String.format("%s%2d%9d %20s",
+                    (index != lastIndex ? "*" : " "),
+                    (index + 1),
+                    diffTs,
+                    dts);
+
+            pad2 = String.format("%s%2d%9s %20s",
+                    " ",
+                    (index + 1),
+                    " ",
+                    " ");
+
+            lastIndex = index;
 
             /////////////////////////////////////////////////////////////////
             // Extract each line from the payload and display it with padding

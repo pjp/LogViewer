@@ -49,4 +49,6 @@ public class LogEntry implements Comparable<LogEntry> {
     public String getPayload() {
         return payload;
     }
+
+    public long getRawTimeStamp() { return rawTimeStamp; }
 }
