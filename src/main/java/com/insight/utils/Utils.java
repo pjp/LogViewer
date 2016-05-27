@@ -375,16 +375,16 @@ public class Utils {
             lastTs = rawTs;
 
             pad1 = String.format("%s%2d%9d %20s",
-                    (index != lastIndex ? "*" : " "),
+                    (index != lastIndex ? "*" : "."),
                     (index + 1),
                     diffTs,
                     dts);
 
-            pad2 = String.format("%s%2d%9s %20s",
-                    " ",
+            pad2 = String.format("%s%2d%9s %-20s",
+                    ".",
                     (index + 1),
-                    " ",
-                    " ");
+                    ".",
+                    ".");
 
             lastIndex = index;
 

@@ -60,3 +60,14 @@ and therefore be different to the actual log entry timestamp from the source fil
 Each log entry line of the output is preceeded by a number indicating which file produced that line, there is a list at
 the beginning of the output, mapping a filename to this number. If a number is preceeded with a period, it indicates that the
 line is from a different file to the previous line.
+
+Each log entry line (see sample below) of the output starts with 4 values:-
+
+1st: \* or .         \*= the file this log entry is from, is different from the last log entry's file; else .= same file
+
+2nd: file number    The index (1 relative) of the filename from the command line this entry is from.
+
+3rd: delta mS       The difference (in mS) between this log entry's timestamp and the last log entry.
+
+4th: . or timestamp The timestamp of this log's entry; else .= the line is from the same single log entry.
+
