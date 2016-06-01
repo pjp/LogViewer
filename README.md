@@ -67,4 +67,3 @@ Each log entry line of the output starts with 4 values:-
 3rd: delta mS       The difference (in mS) between this log entry's timestamp and the last log entry.
 
 4th: . or timestamp The timestamp of this log's entry; else .= the line is from the same single log entry.
-
