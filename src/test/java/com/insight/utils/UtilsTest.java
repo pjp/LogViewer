@@ -142,61 +142,6 @@ public class UtilsTest
 
     }
 
-    public void testLogFileCompareOne() throws ParseException, FileNotFoundException {
-        String file1                = "src/test/resources/gbsheusrchp08-EMEA-ES-PROD.log";
-        String file2                = "src/test/resources/gbsheusrchp07-EMEA-ES-PROD.log" ;
-        String file3                = "src/test/resources/gbsheusrchp01-EMEA-ES-PROD.log" ;
-        String startAt              = "[2016-05-16 00:00:00,000]";
-        String endAt                = "[2016-05-16 05:00:00,000]";
-        List<LogEntry> logEntries   = null;
-        List<List<LogEntry>> logs   = new ArrayList<>();
-
-        logEntries = Utils.createLogEntries(file1, TS1_FORMAT_WITH_SENTINALS, startAt, endAt, searchText, tsAdjustment);
-        logs.add(logEntries);
-
-        logEntries = Utils.createLogEntries(file2, TS1_FORMAT_WITH_SENTINALS, startAt, endAt, searchText, tsAdjustment);
-        logs.add(logEntries);
-
-        logEntries = Utils.createLogEntries(file3, TS1_FORMAT_WITH_SENTINALS, startAt, endAt, searchText, tsAdjustment);
-        logs.add(logEntries);
-
-        List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
-
-        List<String> sources = new ArrayList<>();
-        sources.add(file1);
-        sources.add(file2);
-        sources.add(file3);
-
-        PrintStream out = new PrintStream(new FileOutputStream(new File("result.log")));
-
-        Utils.emitList(timeSortedLogEntries, sources, "Filtered, start at " + startAt + ", end at " + endAt, out);
-    }
-
-    public void testLogFileCompareTwo() throws ParseException, FileNotFoundException {
-        String file1                = "src/test/resources/jb-server.log";
-        String file2                = "src/test/resources/jb-error.log";
-        String startAt              = "2016-05-17 17:45:57,849";
-        String endAt                = "2016-05-19 18:46:01,793";
-        List<LogEntry> logEntries   = null;
-        List<List<LogEntry>> logs   = new ArrayList<>();
-
-        logEntries = Utils.createLogEntries(file1, TS1_FORMAT, startAt, endAt, searchText, tsAdjustment);
-        logs.add(logEntries);
-
-        logEntries = Utils.createLogEntries(file2, TS1_FORMAT, startAt, endAt, searchText, tsAdjustment);
-        logs.add(logEntries);
-
-        List<LogEntry> timeSortedLogEntries = Utils.timeSortLists(logs);
-
-        List<String> sources = new ArrayList<>();
-        sources.add(file1);
-        sources.add(file2);
-
-        PrintStream out = new PrintStream(new FileOutputStream(new File("result2.log")));
-
-        Utils.emitList(timeSortedLogEntries, sources, "Filtered, start at " + startAt + ", end at " + endAt, out);
-    }
-
     public void testCreateTwoLogEntriesListWithTwoLinesEach() throws ParseException {
         List<String> lines          = new ArrayList<String>() ;
 
