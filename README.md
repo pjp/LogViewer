@@ -35,7 +35,7 @@ java -cp logviewer-1.0-SNAPSHOT.jar com.insight.utils.Utils
     '=f= ERROR' '=f= WARN '
     server20160520.log server20160521.log
     
-Here two text filters are specified (read as ERROR or WARN must appear within the log record
+Here two text filters are specified (read as ERROR or WARN must appear within the log record. These text filters are simple, case sensitive, character sequence matches only.
 
 
 ## Timestamp Adjustments
