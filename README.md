@@ -1,6 +1,6 @@
 # LogViewer
 
-## A utility to read multiple log files and display the log entries in time ascending order
+## A utility to read multiple log files and display (on stdout) the log entries in time ascending order
 
 For this to work, the utility has to know the format of the log entries timestamp (SimpleDateFormat)
 
@@ -55,7 +55,7 @@ This will add 8 hours to every log entry's timestamp for the 1st log file 'serve
 before sorting all the log entries. Note that the log entry timestamp written to the output will reflect this change, 
 and therefore be different to the actual log entry timestamp from the source file.
 
-## Output
+## Output Format (on stdout)
 
 
 Each log entry line of the output starts with 4 values:-
